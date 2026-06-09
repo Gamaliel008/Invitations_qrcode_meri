@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Scanner QR - Invitation MERI</title>
+<title>Scanner QR - Event Pro MERI</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -65,15 +65,33 @@ button{
 #status{
   margin-top:10px;
   font-size:14px;
-  opacity:0.9;
+  opacity:0.95;
 }
 
 .ok{ color:#86efac; }
 .err{ color:#f87171; }
+.warn{ color:#facc15; }
 
 @keyframes fade{
   from{opacity:0; transform:translateY(10px);}
   to{opacity:1; transform:translateY(0);}
+}
+
+/* 🎯 FEEDBACK FULL SCREEN */
+#overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  font-size:28px;
+  font-weight:bold;
+  text-align:center;
+  z-index:9999;
+  color:white;
 }
 </style>
 
@@ -81,9 +99,11 @@ button{
 
 <body>
 
+<div id="overlay"></div>
+
 <div class="container">
 
-<h2>📲 Scanner QR Invitation</h2>
+<h2>📲 Scanner Event Pro</h2>
 
 <button onclick="startScanner()">Démarrer le scan</button>
 
@@ -112,7 +132,7 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 
 <script>
 
-/* 👥 BASE EXACTE INDEX (67 invités) */
+/* 👥 BASE INVITÉS (67) */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -183,40 +203,56 @@ const invites = {
 "RC0067":"Fr Ephraïm"
 };
 
-let scannerInstance;
+let scanner;
+let locked = false;
 
-/* 🚀 START SCANNER */
+/* 🚀 START */
 function startScanner(){
 
-  document.getElementById("reader").style.display = "block";
-  document.getElementById("status").innerText = "📷 Activation caméra...";
+  locked = false;
 
-  scannerInstance = new Html5QrcodeScanner(
+  document.getElementById("reader").style.display = "block";
+  document.getElementById("status").innerText = "📷 Initialisation caméra...";
+
+  scanner = new Html5QrcodeScanner(
     "reader",
-    { fps: 10, qrbox: 250 }
+    { fps: 12, qrbox: 260 }
   );
 
-  scannerInstance.render(onScanSuccess, onScanError);
+  scanner.render(onScanSuccess, onScanError);
 }
 
-/* 🧠 CLEAN CODE (IMPORTANT POUR TON INDEX) */
+/* 🧠 CLEAN CODE */
 function extractCode(text){
 
   if(!text) return null;
 
   try{
-    // QR URL format
     if(text.includes("code=")){
       return new URL(text).searchParams.get("code");
     }
   }catch(e){}
 
-  // raw code format
   return text.replace(/[^A-Z0-9]/gi, "").trim();
+}
+
+/* 🎯 FEEDBACK UI */
+function showOverlay(message, color){
+  const overlay = document.getElementById("overlay");
+  overlay.style.display = "flex";
+  overlay.style.background = color;
+  overlay.innerText = message;
+
+  setTimeout(()=>{
+    overlay.style.display = "none";
+  }, 1200);
 }
 
 /* ✔ SCAN SUCCESS */
 function onScanSuccess(decodedText){
+
+  if(locked) return;
+  locked = true;
 
   const code = extractCode(decodedText);
   const nom = invites[code];
@@ -227,22 +263,28 @@ function onScanSuccess(decodedText){
   card.style.display = "block";
 
   if(nom){
+
     document.getElementById("nom").innerText = nom;
-    status.innerHTML = `<span class="ok">✔ Invité validé : ${code}</span>`;
+    status.innerHTML = `<span class="ok">✔ Accès validé : ${code}</span>`;
+
+    showOverlay("✔ VALIDÉ", "rgba(34,197,94,0.95)");
+
   } else {
+
     document.getElementById("nom").innerText = "Invité inconnu";
     status.innerHTML = `<span class="err">❌ Code invalide : ${code}</span>`;
+
+    showOverlay("❌ REFUSÉ", "rgba(239,68,68,0.95)");
   }
 
-  // stop caméra propre (important pour performance mobile)
-  setTimeout(() => {
-    scannerInstance.clear().catch(()=>{});
-  }, 800);
+  setTimeout(()=>{
+    scanner.clear().catch(()=>{});
+  }, 600);
 }
 
-/* ❌ SILENT ERROR */
+/* ❌ ERROR */
 function onScanError(err){
-  // volontairement vide
+  // silencieux
 }
 
 </script>
