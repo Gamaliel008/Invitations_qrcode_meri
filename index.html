@@ -6,7 +6,6 @@
 
 <title>Invitation QR - JPC MERI</title>
 
-<!-- 🔥 AJOUT QR LIB -->
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <style>
@@ -50,6 +49,14 @@ h1{
   margin:15px 0;
 }
 
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  margin-top:10px;
+}
+
 .message{
   text-align:justify;
   line-height:1.7;
@@ -72,7 +79,7 @@ h1{
 }
 
 button{
-  margin-top:20px;
+  margin-top:12px;
   width:100%;
   padding:14px;
   border:none;
@@ -91,7 +98,10 @@ button{
 .error{ color:#f87171; }
 .success{ color:#86efac; }
 
-/* QR LIST */
+#qrBox{
+  margin-top:15px;
+}
+
 #qrcodeList{
   margin-top:20px;
   display:flex;
@@ -116,8 +126,13 @@ button{
 
 <h1>🎟️ Invitation Officielle</h1>
 
+<!-- 🔥 INPUT INVITÉ -->
+<input id="matricule" placeholder="Ex: RC0001">
+
+<button onclick="chargerInvite()">🔎 Charger mon invitation</button>
+
 <div class="nom">
-Cher(e) <span id="nom">Chargement...</span>
+Cher(e) <span id="nom">...</span>
 </div>
 
 <div class="message">
@@ -133,11 +148,14 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 
 <button onclick="confirmer()">✔ Confirmer ma présence</button>
 
+<!-- 🔥 QR PERSONNEL -->
+<button onclick="genererMonQR()">🎟️ Générer mon QR</button>
+<div id="qrBox"></div>
+
 <div id="status"></div>
 
-<!-- 🔥 GENERATION QR -->
+<!-- 🔥 QR GLOBAL -->
 <button onclick="generateAllQR()">🎟️ Générer tous les QR (67 invités)</button>
-
 <div id="qrcodeList"></div>
 
 </div>
@@ -146,7 +164,6 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyA1k-kGz178KNhuEhJ5QPWqs5AXrOvB5bI",
   authDomain: "invitations-qrcode.firebaseapp.com",
@@ -159,7 +176,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* INVITÉS */
+/* 👥 INVITÉS */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -230,33 +247,62 @@ const invites = {
 "RC0067":"Fr Ephraïm"
 };
 
-/* CONFIRMATION */
+/* 🔎 CHARGER INVITE */
+window.chargerInvite = function(){
+  const code = document.getElementById("matricule").value.trim();
+  document.getElementById("nom").innerText = invites[code] || "Invité inconnu";
+  window.currentCode = code;
+};
+
+/* ✔ CONFIRMER */
 window.confirmer = async function(){
-
-  const code = new URLSearchParams(window.location.search).get("code");
-  const nomFinal = invites[code];
   const status = document.getElementById("status");
+  const code = window.currentCode;
 
-  if(!code || !nomFinal){
+  if(!code || !invites[code]){
     status.innerHTML = "<span class='error'>Code invalide</span>";
     return;
   }
 
   try{
     await setDoc(doc(db, "invites", code), {
-      nom: nomFinal,
+      nom: invites[code],
       statut: "present",
       date: new Date().toISOString()
     });
 
     status.innerHTML = "<span class='success'>✔ Présence enregistrée</span>";
-
   }catch(e){
     status.innerHTML = "<span class='error'>Erreur Firebase</span>";
   }
 };
 
-/* QR GENERATION */
+/* 🎟️ QR PERSONNEL */
+window.genererMonQR = function(){
+
+  const code = window.currentCode;
+  const box = document.getElementById("qrBox");
+  box.innerHTML = "";
+
+  if(!code || !invites[code]){
+    box.innerHTML = "<p style='color:red'>Code invalide</p>";
+    return;
+  }
+
+  const baseURL = "https://gamaliel008.github.io/Invitations_qrcode_meri/index.html";
+
+  const qr = document.createElement("div");
+
+  new QRCode(qr, {
+    text: `${baseURL}?code=${code}`,
+    width: 180,
+    height: 180
+  });
+
+  box.appendChild(qr);
+};
+
+/* 🎟️ QR GLOBAL */
 window.generateAllQR = function(){
 
   const container = document.getElementById("qrcodeList");
@@ -270,8 +316,8 @@ window.generateAllQR = function(){
     box.className = "qr-box";
 
     const label = document.createElement("div");
-    label.style.fontSize = "12px";
     label.innerText = code + " - " + invites[code];
+    label.style.fontSize = "12px";
 
     const qr = document.createElement("div");
 
@@ -283,7 +329,6 @@ window.generateAllQR = function(){
 
     box.appendChild(label);
     box.appendChild(qr);
-
     container.appendChild(box);
   });
 };
