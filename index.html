@@ -88,10 +88,20 @@ button{
 .error{ color:#f87171; }
 .success{ color:#86efac; }
 
-/* 🔥 AJOUT UX */
-.loading{
-  opacity:0.7;
-  font-style:italic;
+/* QR LIST */
+#qrcodeList{
+  margin-top:20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+}
+
+.qr-box{
+  background:rgba(255,255,255,0.06);
+  padding:10px;
+  border-radius:12px;
+  width:160px;
 }
 </style>
 
@@ -104,7 +114,7 @@ button{
 <h1>🎟️ Invitation Officielle</h1>
 
 <div class="nom">
-Cher(e) <span id="nom" class="loading">Chargement...</span>
+Cher(e) <span id="nom">Chargement...</span>
 </div>
 
 <div class="message">
@@ -122,13 +132,18 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 
 <div id="status"></div>
 
+<!-- 🔥 NOUVEAU : QR GENERATOR -->
+<button onclick="generateAllQR()">🎟️ Générer tous les QR (67 invités)</button>
+
+<div id="qrcodeList"></div>
+
 </div>
 
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* 🔥 CONFIG FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyA1k-kGz178KNhuEhJ5QPWqs5AXrOvB5bI",
   authDomain: "invitations-qrcode.firebaseapp.com",
@@ -141,7 +156,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* 👥 67 INVITÉS */
+/* 👥 INVITÉS */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -212,24 +227,14 @@ const invites = {
 "RC0067":"Fr Ephraïm"
 };
 
-/* 📲 GET CODE */
 const params = new URLSearchParams(window.location.search);
 const code = params.get("code");
-
-/* 🔥 VALIDATION */
 const nomFinal = invites[code];
 
-const nomEl = document.getElementById("nom");
+document.getElementById("nom").textContent =
+nomFinal || "Invité inconnu";
 
-if(nomFinal){
-  nomEl.textContent = nomFinal;
-  nomEl.classList.remove("loading");
-}else{
-  nomEl.textContent = "Invité inconnu";
-  nomEl.classList.remove("loading");
-}
-
-/* ✔ CONFIRMATION FIREBASE */
+/* CONFIRMATION */
 window.confirmer = async function(){
 
   const status = document.getElementById("status");
@@ -253,7 +258,41 @@ window.confirmer = async function(){
   }
 };
 
+/* QR GENERATION (AJOUT) */
+window.generateAllQR = function(){
+
+  const container = document.getElementById("qrcodeList");
+  container.innerHTML = "";
+
+  const baseURL = "https://gamaliel008.github.io/Invitations_qrcode_meri/index.html";
+
+  for(const code in invites){
+
+    const box = document.createElement("div");
+    box.className = "qr-box";
+
+    const label = document.createElement("div");
+    label.style.fontSize = "12px";
+    label.style.marginBottom = "8px";
+    label.innerText = code;
+
+    const qr = document.createElement("div");
+
+    new QRCode(qr, {
+      text: `${baseURL}?code=${code}`,
+      width:140,
+      height:140
+    });
+
+    box.appendChild(label);
+    box.appendChild(qr);
+    container.appendChild(box);
+  }
+};
+
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 </body>
 </html>
