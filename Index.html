@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitation Personnalisée</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(135deg,#0f172a,#1e293b,#334155);
+    padding:20px;
+}
+
+.card{
+    width:100%;
+    max-width:650px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    border-radius:25px;
+    padding:35px;
+    color:white;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,.3);
+    border:1px solid rgba(255,255,255,.15);
+}
+
+.logo{
+    font-size:60px;
+    margin-bottom:15px;
+}
+
+h1{
+    color:#facc15;
+    margin-bottom:10px;
+    font-size:2rem;
+}
+
+.guest{
+    color:#ffffff;
+    font-size:1.3rem;
+    margin-bottom:25px;
+    font-weight:bold;
+}
+
+.message{
+    line-height:1.8;
+    margin-bottom:25px;
+    color:#e2e8f0;
+}
+
+.info{
+    background:rgba(255,255,255,.08);
+    padding:20px;
+    border-radius:15px;
+    margin:20px 0;
+}
+
+.info p{
+    margin:10px 0;
+    font-size:1.05rem;
+}
+
+.footer{
+    margin-top:25px;
+    color:#86efac;
+    font-size:1.2rem;
+    font-weight:bold;
+}
+
+.signature{
+    margin-top:15px;
+    color:#cbd5e1;
+    font-style:italic;
+}
+
+@media(max-width:600px){
+    .card{
+        padding:25px;
+    }
+
+    h1{
+        font-size:1.6rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="logo">🎁</div>
+
+    <h1>INVITATION</h1>
+
+    <div class="guest">
+        Cher(e) Frère/Sœur <span id="nomInvite">Nom de l'invité</span>
+    </div>
+
+    <div class="message">
+        La Jeunesse pour Christ de l'Église MERI / Paroisse Grain de Senevé
+        a l'honneur de vous inviter à un moment de rafraîchissement,
+        d'échange de cadeaux et de communion fraternelle.
+    </div>
+
+    <div class="info">
+        <p>📅 <strong>Date :</strong> Dimanche 14 Juin 2026</p>
+        <p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
+        <p>⏰ <strong>Heure :</strong> 15h00</p>
+    </div>
+
+    <div class="footer">
+        Cordiale bienvenue 🙏
+    </div>
+
+    <div class="signature">
+        Jeunesse Pour Christ
+    </div>
+
+</div>
+
+<script>
+// Exemple temporaire
+document.getElementById("nomInvite").textContent = "Gamaliel Kalambo";
+</script>
+
+</body>
+</html>
