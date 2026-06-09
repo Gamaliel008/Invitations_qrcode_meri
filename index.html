@@ -6,7 +6,7 @@
 
 <title>Invitation QR - JPC MERI</title>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <style>
 *{
@@ -55,6 +55,7 @@ input{
   border-radius:10px;
   border:none;
   margin-top:10px;
+  font-size:14px;
 }
 
 .message{
@@ -88,6 +89,13 @@ button{
   font-weight:bold;
   font-size:15px;
   cursor:pointer;
+  transition:transform 0.2s, background 0.2s;
+  color:#0f172a;
+}
+
+button:hover{
+  background:#eab308;
+  transform:scale(0.98);
 }
 
 #status{
@@ -110,6 +118,9 @@ button{
   flex-wrap:wrap;
   gap:10px;
   justify-content:center;
+  max-height:400px;
+  overflow-y:auto;
+  padding:10px;
 }
 
 .qr-box{
@@ -117,6 +128,26 @@ button{
   padding:10px;
   border-radius:12px;
   width:160px;
+  text-align:center;
+}
+
+hr{
+  margin:20px 0;
+  opacity:0.2;
+}
+
+::-webkit-scrollbar{
+  width:8px;
+}
+
+::-webkit-scrollbar-track{
+  background:rgba(255,255,255,0.1);
+  border-radius:10px;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#facc15;
+  border-radius:10px;
 }
 </style>
 
@@ -126,10 +157,10 @@ button{
 
 <div class="card">
 
-<h1>🎟️ Invitation Officielle</h1>
+<h1>🎟️ Système d'Invitation JPC MERI</h1>
 
 <!-- INPUT -->
-<input id="matricule" placeholder="Ex: RC0001">
+<input id="matricule" placeholder="Entrez votre code (Ex: RC0001)">
 
 <button onclick="chargerInvite()">🔎 Charger mon invitation</button>
 
@@ -138,8 +169,8 @@ Cher(e) <span id="nom">...</span>
 </div>
 
 <div class="message">
-La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé
-vous convie à un moment de rafraîchissement, d’échange de cadeaux et de communion fraternelle.
+La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé
+vous convie à un moment de rafraîchissement, d'échange de cadeaux et de communion fraternelle.
 </div>
 
 <div class="info">
@@ -149,152 +180,199 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 </div>
 
 <!-- QR PERSONNEL -->
-<button onclick="genererMonQR()">🎟️ Générer mon QR</button>
+<button onclick="genererMonQR()">🎟️ Générer mon QR code personnel</button>
 <div id="qrBox"></div>
 
 <div id="status"></div>
 
-<hr style="margin:20px 0; opacity:0.2;">
+<hr>
 
 <!-- QR ADMIN -->
-<button onclick="generateAllQR()">🎟️ Générer tous les QR (67 invités)</button>
+<button onclick="generateAllQR()">📦 Générer tous les QR codes (67 invités)</button>
 <div id="qrcodeList"></div>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-
 <script>
+// Base URL du scanner (à modifier selon votre hébergement)
+// Pour GitHub Pages, utilisez le lien de votre scanner
+const BASE_URL = window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + "scanner.html";
+
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
 "RC0003":"Fr Abel Dianda",
-"RC0004":"Fr sylas Mutetelenu",
+"RC0004":"Fr Sylas Mutetelenu",
 "RC0005":"Fr Louis Tshimanga",
 "RC0006":"Fr Aimerance Kazal",
 "RC0007":"Sr Jolaine Mwika",
 "RC0008":"Sr Julia yav",
-"RC0009":"Fr christian okota",
-"RC0010":"Fr Maurice kasongo",
+"RC0009":"Fr Christian Okota",
+"RC0010":"Fr Maurice Kasongo",
 "RC0011":"Sr Allegresse Simbove",
-"RC0012":"Sr craintha Simbove",
+"RC0012":"Sr Craintha Simbove",
 "RC0013":"Fr Martin Fine",
-"RC0014":"Sr jireh Topele",
-"RC0015":"Fr blaise Lwashi",
+"RC0014":"Sr Jireh Topele",
+"RC0015":"Fr Blaise Lwashi",
 "RC0016":"Fr Alex Nawej",
 "RC0017":"Maman Lydia Mukonda",
 "RC0018":"Fr Lumière Mbuyi",
 "RC0019":"Fr Roméo Lufungula",
-"RC0020":"Fr Marc kyabo",
-"RC0021":"Fr héritier sangwa",
-"RC0022":"Fr jonathan kabunda",
-"RC0023":"Fr Ariel kiyonge",
-"RC0024":"Fr Donatien kabala",
-"RC0025":"Fr sylvain kumena",
+"RC0020":"Fr Marc Kyabo",
+"RC0021":"Fr Héritier Sangwa",
+"RC0022":"Fr Jonathan Kabunda",
+"RC0023":"Fr Ariel Kiyonge",
+"RC0024":"Fr Donatien Kabala",
+"RC0025":"Fr Sylvain Kumena",
 "RC0026":"Sr Gloria Mbindi",
 "RC0027":"Fr Misaël Meshack",
-"RC0028":"Fr Esaïe kabunda",
+"RC0028":"Fr Esaïe Kabunda",
 "RC0029":"Fr Tresor Ntambwe",
-"RC0030":"Fr Gamaliel kalambo",
-"RC0031":"Sr sephora yumba",
-"RC0032":"Sr Arisia yumba",
-"RC0033":"Sr julia Mbala",
+"RC0030":"Fr Gamaliel Kalambo",
+"RC0031":"Sr Sephora Yumba",
+"RC0032":"Sr Arisia Yumba",
+"RC0033":"Sr Julia Mbala",
 "RC0034":"Sr Elisa Nzweba",
-"RC0035":"Sr Rosette lwaisha",
+"RC0035":"Sr Rosette Lwaisha",
 "RC0036":"Fr Gamaliel Muland",
-"RC0037":"Sr Myriam kalenga",
-"RC0038":"Fr jérémie yumba",
+"RC0037":"Sr Myriam Kalenga",
+"RC0038":"Fr Jérémie Yumba",
 "RC0039":"Fr Grace Alphonse",
-"RC0040":"Sr Anne kabwe",
+"RC0040":"Sr Anne Kabwe",
 "RC0041":"Fr Gad Mukalay",
-"RC0042":"Sr l’or kabwit",
-"RC0043":"Sr viviane Nduwa",
-"RC0044":"Sr Rebecca itwamba",
-"RC0045":"Sr Alice furah",
-"RC0046":"Sr Acacia percide Margueritte",
-"RC0047":"Sr Marie kasongo",
-"RC0048":"Sr Gloire watshika",
-"RC0049":"Fr guy kalala",
-"RC0050":"Fr David sangwa",
-"RC0051":"Fr josué Musans",
+"RC0042":"Sr L'or Kabwit",
+"RC0043":"Sr Viviane Nduwa",
+"RC0044":"Sr Rebecca Itwamba",
+"RC0045":"Sr Alice Furah",
+"RC0046":"Sr Acacia Percide Margueritte",
+"RC0047":"Sr Marie Kasongo",
+"RC0048":"Sr Gloire Watshika",
+"RC0049":"Fr Guy Kalala",
+"RC0050":"Fr David Sangwa",
+"RC0051":"Fr Josué Musans",
 "RC0052":"Sr Abigaël Mulunda",
-"RC0053":"Fr josué kabange",
-"RC0054":"Sr clemence Mujinga",
+"RC0053":"Fr Josué Kabange",
+"RC0054":"Sr Clémence Mujinga",
 "RC0055":"Sr Esther Ngalula",
-"RC0056":"Fr christian kambendja",
-"RC0057":"Fr David iledephose",
-"RC0058":"Fr claude Botamali",
-"RC0059":"Sr christine",
+"RC0056":"Fr Christian Kambendja",
+"RC0057":"Fr David Iledephose",
+"RC0058":"Fr Claude Botamali",
+"RC0059":"Sr Christine",
 "RC0060":"Sr Adassa",
-"RC0061":"Fr victoire kyungu",
-"RC0062":"Sr sarah Mayeta",
-"RC0063":"Fr samuel Ngoy",
-"RC0064":"Fr crinovic simbove",
-"RC0065":"Fr yann kabuya",
-"RC0066":"Sr melissa",
+"RC0061":"Fr Victoire Kyungu",
+"RC0062":"Sr Sarah Mayeta",
+"RC0063":"Fr Samuel Ngoy",
+"RC0064":"Fr Crinovic Simbove",
+"RC0065":"Fr Yann Kabuya",
+"RC0066":"Sr Melissa",
 "RC0067":"Fr Ephraïm"
 };
 
 let currentCode = "";
 
-/* charger invité */
+// Charger invité
 function chargerInvite(){
-  const code = document.getElementById("matricule").value.trim();
+  const code = document.getElementById("matricule").value.trim().toUpperCase();
   currentCode = code;
-  document.getElementById("nom").innerText = invites[code] || "Invité inconnu";
+  const nom = invites[code];
+  const statusDiv = document.getElementById("status");
+  
+  if(nom){
+    document.getElementById("nom").innerHTML = `<span style="color:#facc15">${nom}</span>`;
+    statusDiv.innerHTML = `<span class="success">✅ Code valide : ${code}</span>`;
+    statusDiv.className = "success";
+  } else {
+    document.getElementById("nom").innerHTML = "Invité non trouvé";
+    statusDiv.innerHTML = `<span class="error">❌ Code invalide : ${code || "code manquant"}</span>`;
+    statusDiv.className = "error";
+  }
 }
 
-/* QR personnel centré */
+// Générer QR personnel
 function genererMonQR(){
-
   const box = document.getElementById("qrBox");
+  const statusDiv = document.getElementById("status");
   box.innerHTML = "";
 
   if(!currentCode || !invites[currentCode]){
-    box.innerHTML = "<span style='color:red'>Code invalide</span>";
+    statusDiv.innerHTML = "<span class='error'>❌ Veuillez d'abord entrer un code valide</span>";
+    statusDiv.className = "error";
     return;
   }
 
-  const baseURL = "https://gamaliel008.github.io/Invitations_qrcode_meri/index.html";
-
-  new QRCode(box, {
-    text: `${baseURL}?code=${currentCode}`,
-    width: 200,
-    height: 200
-  });
-}
-
-/* QR admin */
-function generateAllQR(){
-
-  const container = document.getElementById("qrcodeList");
-  container.innerHTML = "";
-
-  const baseURL = "https://gamaliel008.github.io/Invitations_qrcode_meri/index.html";
-
-  Object.keys(invites).forEach(code => {
-
-    const div = document.createElement("div");
-    div.className = "qr-box";
-
-    const label = document.createElement("div");
-    label.innerText = code + " - " + invites[code];
-    label.style.fontSize = "12px";
-
-    const qr = document.createElement("div");
-
-    new QRCode(qr, {
-      text: `${baseURL}?code=${code}`,
-      width:140,
-      height:140
+  try{
+    const qrData = `${BASE_URL}?code=${currentCode}`;
+    
+    new QRCode(box, {
+      text: qrData,
+      width: 200,
+      height: 200,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
     });
-
-    div.appendChild(label);
-    div.appendChild(qr);
-
-    container.appendChild(div);
-  });
+    
+    statusDiv.innerHTML = `<span class="success">✅ QR code généré pour ${invites[currentCode]}</span>`;
+    statusDiv.className = "success";
+  } catch(error){
+    statusDiv.innerHTML = "<span class='error'>❌ Erreur lors de la génération du QR code</span>";
+    statusDiv.className = "error";
+  }
 }
+
+// Générer tous les QR (admin)
+function generateAllQR(){
+  const container = document.getElementById("qrcodeList");
+  const statusDiv = document.getElementById("status");
+  container.innerHTML = "";
+  
+  statusDiv.innerHTML = "<span class='success'>⏳ Génération des 67 QR codes en cours...</span>";
+  
+  setTimeout(() => {
+    Object.keys(invites).forEach((code, index) => {
+      const div = document.createElement("div");
+      div.className = "qr-box";
+
+      const label = document.createElement("div");
+      label.innerText = `${code} - ${invites[code]}`;
+      label.style.fontSize = "11px";
+      label.style.marginBottom = "8px";
+      label.style.wordBreak = "break-word";
+
+      const qrContainer = document.createElement("div");
+      
+      try{
+        new QRCode(qrContainer, {
+          text: `${BASE_URL}?code=${code}`,
+          width: 130,
+          height: 130,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch(error){
+        qrContainer.innerHTML = "<p style='color:red;font-size:10px'>Erreur</p>";
+      }
+
+      div.appendChild(label);
+      div.appendChild(qrContainer);
+      container.appendChild(div);
+    });
+    
+    statusDiv.innerHTML = `<span class="success">✅ ${Object.keys(invites).length} QR codes générés avec succès !</span>`;
+  }, 100);
+}
+
+// Vérifier si un code est passé dans l'URL
+window.addEventListener('load', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const codeFromUrl = urlParams.get('code');
+  if(codeFromUrl && invites[codeFromUrl]){
+    document.getElementById("matricule").value = codeFromUrl;
+    chargerInvite();
+    genererMonQR();
+  }
+});
 </script>
 
 </body>
