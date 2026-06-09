@@ -3,6 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitation QR - JPC MERI</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Segoe UI, sans-serif;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#0b1220,#1e293b,#0f172a);
+  color:#fff;
+  padding:20px;
+}
+
+.card{
+  width:100%;
+  max-width:780px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(18px);
+  border-radius:24px;
+  padding:30px;
+  text-align:center;
+  box-shadow:0 25px 60px rgba(0,0,0,0.45);
+}
+
+h1{
+  color:#facc15;
+  margin-bottom:10px;
+}
+
+.nom{
+  font-size:1.4rem;
+  font-weight:700;
+  margin:20px 0;
+}
+
+.message{
+  text-align:justify;
+  line-height:1.8;
+  color:#e2e8f0;
+  border-left:3px solid #facc15;
+  padding-left:12px;
+  margin-top:15px;
+}
+
+.info{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+}
+
+.box{
+  background:rgba(255,255,255,0.07);
+  padding:12px;
+  border-radius:12px;
+}
+
+button{
+  margin-top:25px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#facc15;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#status{
+  margin-top:15px;
+  font-weight:bold;
+}
+
+.error{
+  color:#f87171;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Invitation Officielle</h1>
+
+<div class="nom">
+Cher(e) <span id="nom">Chargement...</span>
+</div>
+
+<div class="message">
+La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé
+vous convie à un moment de rafraîchissement, d’échange de cadeaux et de communion fraternelle.
+</div>
+
+<div class="info">
+<div class="box">📅 Dimanche 14 Juin 2026</div>
+<div class="box">📍 Restaurant LACAZZA</div>
+<div class="box">⏰ 15h00</div>
+</div>
+
+<button onclick="confirmer()">✔ Confirmer ma présence</button>
+
+<div id="status"></div>
+
+</div>
+
+<!-- ================= FIREBASE ================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA1k-kGz178KNhuEhJ5QPWqs5AXrOvB5bI",
+  authDomain: "invitations-qrcode.firebaseapp.com",
+  projectId: "invitations-qrcode",
+  storageBucket: "invitations-qrcode.firebasestorage.app",
+  messagingSenderId: "716513403852",
+  appId: "1:716513403852:web:846355b629e612e8477369"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ================= 67 INVITÉS ================= */
+const invites = {
+"RC0001":"Fr Emmanuel Bondo",
+"RC0002":"Fr Tonny Bwanga",
+"RC0003":"Fr Abel Dianda",
+"RC0004":"Fr sylas Mutetelenu",
+"RC0005":"Fr Louis Tshimanga",
+"RC0006":"Fr Aimerance Kazal",
+"RC0007":"Sr Jolaine Mwika",
+"RC0008":"Sr Julia yav",
+"RC0009":"Fr christian okota",
+"RC0010":"Fr Maurice kasongo",
+"RC0011":"Sr Allegresse Simbove",
+"RC0012":"Sr craintha Simbove",
+"RC0013":"Fr Martin Fine",
+"RC0014":"Sr jireh Topele",
+"RC0015":"Fr blaise Lwashi",
+"RC0016":"Fr Alex Nawej",
+"RC0017":"Maman Lydia Mukonda",
+"RC0018":"Fr Lumière Mbuyi",
+"RC0019":"Fr Roméo Lufungula",
+"RC0020":"Fr Marc kyabo",
+"RC0021":"Fr héritier sangwa",
+"RC0022":"Fr jonathan kabunda",
+"RC0023":"Fr Ariel kiyonge",
+"RC0024":"Fr Donatien kabala",
+"RC0025":"Fr sylvain kumena",
+"RC0026":"Sr Gloria Mbindi",
+"RC0027":"Fr Misaël Meshack",
+"RC0028":"Fr Esaïe kabunda",
+"RC0029":"Fr Tresor Ntambwe",
+"RC0030":"Fr Gamaliel kalambo",
+"RC0031":"Sr sephora yumba",
+"RC0032":"Sr Arisia yumba",
+"RC0033":"Sr julia Mbala",
+"RC0034":"Sr Elisa Nzweba",
+"RC0035":"Sr Rosette lwaisha",
+"RC0036":"Fr Gamaliel Muland",
+"RC0037":"Sr Myriam kalenga",
+"RC0038":"Fr jérémie yumba",
+"RC0039":"Fr Grace Alphonse",
+"RC0040":"Sr Anne kabwe",
+"RC0041":"Fr Gad Mukalay",
+"RC0042":"Sr l’or kabwit",
+"RC0043":"Sr viviane Nduwa",
+"RC0044":"Sr Rebecca itwamba",
+"RC0045":"Sr Alice furah",
+"RC0046":"Sr Acacia percide Margueritte",
+"RC0047":"Sr Marie kasongo",
+"RC0048":"Sr Gloire watshika",
+"RC0049":"Fr guy kalala",
+"RC0050":"Fr David sangwa",
+"RC0051":"Fr josué Musans",
+"RC0052":"Sr Abigaël Mulunda",
+"RC0053":"Fr josué kabange",
+"RC0054":"Sr clemence Mujinga",
+"RC0055":"Sr Esther Ngalula",
+"RC0056":"Fr christian kambendja",
+"RC0057":"Fr David iledephose",
+"RC0058":"Fr claude Botamali",
+"RC0059":"Sr christine",
+"RC0060":"Sr Adassa",
+"RC0061":"Fr victoire kyungu",
+"RC0062":"Sr sarah Mayeta",
+"RC0063":"Fr samuel Ngoy",
+"RC0064":"Fr crinovic simbove",
+"RC0065":"Fr yann kabuya",
+"RC0066":"Sr melissa",
+"RC0067":"Fr Ephraïm"
+};
+
+/* ================= QR ================= */
+const code = new URLSearchParams(location.search).get("code");
+const nom = invites[code];
+
+document.getElementById("nom").textContent =
+nom ? nom : "Invité inconnu";
+
+/* ================= CONFIRMATION ================= */
+window.confirmer = async function(){
+
+  if(!code || !nom){
+    document.getElementById("status").innerHTML =
+    "<span class='error'>Code invalide</span>";
+    return;
+  }
+
+  try{
+    await setDoc(doc(db, "invites", code), {
+      nom: nom,
+      statut: "present",
+      date: new Date().toISOString()
+    });
+
+    document.getElementById("status").innerHTML =
+    "✔ Présence enregistrée avec succès 🙏";
+
+  }catch(e){
+    document.getElementById("status").innerHTML =
+    "<span class='error'>Erreur Firebase</span>";
+  }
+};
+
+</script>
+
+</body>
+</html>!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Invitation Officielle - JPC MERI</title>
 
 <style>
