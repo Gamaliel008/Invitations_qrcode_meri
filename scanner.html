@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Scanner QR - Event Pro MERI</title>
+<title>Scanner QR - Invitation MERI</title>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <style>
 *{
@@ -46,52 +46,68 @@ button{
   font-weight:bold;
   color:white;
   cursor:pointer;
+  font-size:16px;
+  transition:transform 0.2s, background 0.2s;
+}
+
+button:hover{
+  background:#16a34a;
+  transform:scale(0.98);
 }
 
 #reader{
   margin-top:15px;
   display:none;
+  width:100%;
 }
 
 .card{
   margin-top:20px;
   background:rgba(255,255,255,0.08);
-  padding:15px;
+  backdrop-filter:blur(10px);
+  padding:20px;
   border-radius:12px;
   display:none;
   animation: fade 0.3s ease-in-out;
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+.card h3{
+  color:#facc15;
+  margin-bottom:15px;
+}
+
+.card p{
+  margin-top:10px;
+  font-size:14px;
+  line-height:1.6;
 }
 
 #status{
-  margin-top:10px;
+  margin-top:15px;
   font-size:14px;
-  opacity:0.95;
+  opacity:0.9;
+  padding:10px;
+  border-radius:8px;
+  background:rgba(0,0,0,0.3);
 }
 
 .ok{ color:#86efac; }
 .err{ color:#f87171; }
-.warn{ color:#facc15; }
 
 @keyframes fade{
   from{opacity:0; transform:translateY(10px);}
   to{opacity:1; transform:translateY(0);}
 }
 
-/* 🎯 FEEDBACK FULL SCREEN */
-#overlay{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
+#stopScanBtn{
+  background:#ef4444;
+  margin-top:10px;
   display:none;
-  justify-content:center;
-  align-items:center;
-  font-size:28px;
-  font-weight:bold;
-  text-align:center;
-  z-index:9999;
-  color:white;
+}
+
+#stopScanBtn:hover{
+  background:#dc2626;
 }
 </style>
 
@@ -99,40 +115,34 @@ button{
 
 <body>
 
-<div id="overlay"></div>
-
 <div class="container">
 
-<h2>📲 Scanner Event Pro</h2>
+<h2>📲 Scanner QR Invitation</h2>
 
-<button onclick="startScanner()">Démarrer le scan</button>
+<button id="startBtn" onclick="startScanner()">Démarrer le scan</button>
+<button id="stopScanBtn" onclick="stopScanner()">Arrêter le scan</button>
 
 <div id="reader"></div>
 
 <div id="status">En attente du scan...</div>
 
 <div class="card" id="invitation">
-
 <h3>🎉 Invitation Officielle</h3>
-
 <p><strong id="nom">Invité</strong></p>
-
 <p style="margin-top:10px; font-size:14px; line-height:1.6;">
-La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé
-vous convie à un moment de rafraîchissement, d’échange de cadeaux et de communion fraternelle.
+La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé
+vous convie à un moment de rafraîchissement, d'échange de cadeaux et de communion fraternelle.
 </p>
-
 <p>📅 Dimanche 14 Juin 2026</p>
 <p>📍 Restaurant LACAZZA</p>
 <p>⏰ 15h00</p>
-
 </div>
 
 </div>
 
 <script>
 
-/* 👥 BASE INVITÉS (67) */
+/* 👥 BASE DES INVITÉS (67 invités) */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -175,7 +185,7 @@ const invites = {
 "RC0039":"Fr Grace Alphonse",
 "RC0040":"Sr Anne Kabwe",
 "RC0041":"Fr Gad Mukalay",
-"RC0042":"Sr L’or Kabwit",
+"RC0042":"Sr L'or Kabwit",
 "RC0043":"Sr Viviane Nduwa",
 "RC0044":"Sr Rebecca Itwamba",
 "RC0045":"Sr Alice Furah",
@@ -203,89 +213,141 @@ const invites = {
 "RC0067":"Fr Ephraïm"
 };
 
-let scanner;
-let locked = false;
+let html5QrCode;
+let isScanning = false;
 
-/* 🚀 START */
-function startScanner(){
-
-  locked = false;
-
-  document.getElementById("reader").style.display = "block";
-  document.getElementById("status").innerText = "📷 Initialisation caméra...";
-
-  scanner = new Html5QrcodeScanner(
-    "reader",
-    { fps: 12, qrbox: 260 }
-  );
-
-  scanner.render(onScanSuccess, onScanError);
-}
-
-/* 🧠 CLEAN CODE */
-function extractCode(text){
-
-  if(!text) return null;
-
+/* 🚀 START CAMERA */
+async function startScanner(){
+  const startBtn = document.getElementById("startBtn");
+  const stopBtn = document.getElementById("stopScanBtn");
+  const readerDiv = document.getElementById("reader");
+  const statusDiv = document.getElementById("status");
+  
+  if(isScanning){
+    statusDiv.innerHTML = "<span class='err'>⚠️ Scan déjà en cours</span>";
+    return;
+  }
+  
+  readerDiv.style.display = "block";
+  statusDiv.innerHTML = "📷 Demande d'accès à la caméra...";
+  
   try{
-    if(text.includes("code=")){
-      return new URL(text).searchParams.get("code");
+    html5QrCode = new Html5Qrcode("reader");
+    
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0
+    };
+    
+    await html5QrCode.start(
+      { facingMode: "environment" }, // caméra arrière par défaut
+      config,
+      onScanSuccess,
+      onScanError
+    );
+    
+    isScanning = true;
+    startBtn.style.display = "none";
+    stopBtn.style.display = "block";
+    statusDiv.innerHTML = "📸 Caméra active - Scannez un QR code";
+    
+  } catch(err){
+    console.error("Erreur démarrage caméra:", err);
+    statusDiv.innerHTML = "<span class='err'>❌ Impossible d'accéder à la caméra. Vérifiez les permissions.</span>";
+    readerDiv.style.display = "none";
+  }
+}
+
+/* 🛑 STOP CAMERA */
+async function stopScanner(){
+  const startBtn = document.getElementById("startBtn");
+  const stopBtn = document.getElementById("stopScanBtn");
+  const readerDiv = document.getElementById("reader");
+  const statusDiv = document.getElementById("status");
+  
+  if(html5QrCode && isScanning){
+    try{
+      await html5QrCode.stop();
+      html5QrCode.clear();
+    } catch(err){
+      console.error("Erreur arrêt scan:", err);
     }
-  }catch(e){}
-
-  return text.replace(/[^A-Z0-9]/gi, "").trim();
+  }
+  
+  isScanning = false;
+  readerDiv.style.display = "none";
+  startBtn.style.display = "block";
+  stopBtn.style.display = "none";
+  statusDiv.innerHTML = "Scan arrêté. Cliquez sur 'Démarrer' pour recommencer.";
 }
 
-/* 🎯 FEEDBACK UI */
-function showOverlay(message, color){
-  const overlay = document.getElementById("overlay");
-  overlay.style.display = "flex";
-  overlay.style.background = color;
-  overlay.innerText = message;
-
-  setTimeout(()=>{
-    overlay.style.display = "none";
-  }, 1200);
+/* 🔍 EXTRACT CODE (QR OU URL) */
+function extractCode(text){
+  if(!text) return null;
+  
+  text = text.trim();
+  
+  // Si c'est une URL avec paramètre code=
+  if(text.includes("code=")){
+    try{
+      const url = new URL(text);
+      const code = url.searchParams.get("code");
+      if(code) return code;
+    } catch(e){
+      // Si l'URL est mal formée, on essaye avec regex
+      const match = text.match(/[?&]code=([^&]+)/);
+      if(match) return match[1];
+    }
+  }
+  
+  // Sinon, retourner le texte tel quel (si c'est directement le code)
+  return text;
 }
 
-/* ✔ SCAN SUCCESS */
+/* ✔ SUCCESS */
 function onScanSuccess(decodedText){
-
-  if(locked) return;
-  locked = true;
-
   const code = extractCode(decodedText);
   const nom = invites[code];
-
+  
   const status = document.getElementById("status");
   const card = document.getElementById("invitation");
-
+  
   card.style.display = "block";
-
+  
   if(nom){
-
     document.getElementById("nom").innerText = nom;
-    status.innerHTML = `<span class="ok">✔ Accès validé : ${code}</span>`;
-
-    showOverlay("✔ VALIDÉ", "rgba(34,197,94,0.95)");
-
+    status.innerHTML = `<span class="ok">✅ Code valide : ${code}<br>Bienvenue ${nom} !</span>`;
+    
+    // Arrêter automatiquement le scan après un code valide
+    setTimeout(() => {
+      if(isScanning){
+        stopScanner();
+      }
+    }, 2000);
+    
   } else {
-
-    document.getElementById("nom").innerText = "Invité inconnu";
-    status.innerHTML = `<span class="err">❌ Code invalide : ${code}</span>`;
-
-    showOverlay("❌ REFUSÉ", "rgba(239,68,68,0.95)");
+    document.getElementById("nom").innerText = "Invité non trouvé";
+    status.innerHTML = `<span class="err">❌ Code invalide : ${code || "non reconnu"}</span>`;
   }
-
-  setTimeout(()=>{
-    scanner.clear().catch(()=>{});
-  }, 600);
 }
 
-/* ❌ ERROR */
-function onScanError(err){
-  // silencieux
+/* ❌ ERROR (silencieux pour éviter les spams) */
+function onScanError(errorMessage){
+  // Ne pas afficher les erreurs pour éviter de spammer la console
+  // Les erreurs mineures sont normales pendant le scan
+  if(errorMessage && errorMessage.includes("NotFoundException")){
+    return; // Ignorer les erreurs de frame sans QR code
+  }
+  console.warn("Erreur scan:", errorMessage);
 }
+
+// Nettoyer le scanner si la page est fermée
+window.addEventListener('beforeunload', () => {
+  if(html5QrCode && isScanning){
+    html5QrCode.stop().catch(() => {});
+  }
+});
 
 </script>
 
