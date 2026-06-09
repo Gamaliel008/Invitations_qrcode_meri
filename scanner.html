@@ -111,7 +111,7 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 
 <script>
 
-/* 👥 LISTE INVITÉS (67 personnes alignées avec index) */
+/* 👥 LISTE INVITÉS (67 personnes) */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -192,44 +192,60 @@ function startScanner(){
 
   scanner = new Html5QrcodeScanner(
     "reader",
-    { fps: 10, qrbox: 250 }
+    { fps: 10, qrbox: 250 },
+    false
   );
 
   scanner.render(onScanSuccess, onScanError);
 }
 
-/* ✔ PARSE QR */
+/* 🧠 EXTRACTION INTELLIGENTE */
 function extractCode(text){
+
+  if(!text) return null;
 
   try{
     if(text.includes("code=")){
-      const url = new URL(text);
-      return url.searchParams.get("code");
+      return new URL(text).searchParams.get("code");
     }
   }catch(e){}
 
-  return text?.trim();
+  return text.trim();
 }
 
-/* ✔ SUCCESS */
+/* ✔ SUCCESS SCAN */
 function onScanSuccess(decodedText){
 
   const code = extractCode(decodedText);
-
   const nom = invites[code];
 
-  document.getElementById("invitation").style.display = "block";
+  const status = document.getElementById("status");
+  const card = document.getElementById("invitation");
 
-  document.getElementById("nom").innerText =
-    nom || "Invité inconnu";
+  card.style.display = "block";
 
-  document.getElementById("status").innerHTML =
-    `<span class="ok">✔ QR détecté : ${code}</span>`;
+  if(nom){
+
+    document.getElementById("nom").innerText = nom;
+
+    status.innerHTML =
+      `<span class="ok">✔ Code valide : ${code}</span>`;
+
+  } else {
+
+    document.getElementById("nom").innerText = "Invité inconnu";
+
+    status.innerHTML =
+      `<span class="err">❌ Code invalide : ${code}</span>`;
+  }
+
+  // stop scan après réussite
+  scanner.clear().catch(()=>{});
 }
 
-/* ❌ ERROR */
+/* ❌ ERROR SILENCIEUX */
 function onScanError(err){
-  // silencieux (mobile friendly)
+  // rien (mobile stable)
 }
 
 </script>
