@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Invitation QR - JPC MERI</title>
 
 <style>
@@ -10,7 +11,7 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:Segoe UI, sans-serif;
+  font-family:system-ui, -apple-system, Segoe UI, Roboto;
 }
 
 body{
@@ -20,73 +21,71 @@ body{
   align-items:center;
   background:linear-gradient(135deg,#0b1220,#1e293b,#0f172a);
   color:#fff;
-  padding:20px;
+  padding:15px;
 }
 
 .card{
   width:100%;
   max-width:780px;
-  background:rgba(255,255,255,0.06);
+  background:rgba(255,255,255,0.07);
   border:1px solid rgba(255,255,255,0.12);
-  backdrop-filter:blur(18px);
-  border-radius:24px;
-  padding:30px;
+  backdrop-filter:blur(16px);
+  border-radius:20px;
+  padding:22px;
   text-align:center;
-  box-shadow:0 25px 60px rgba(0,0,0,0.45);
 }
 
 h1{
   color:#facc15;
+  font-size:22px;
   margin-bottom:10px;
 }
 
 .nom{
-  font-size:1.4rem;
+  font-size:18px;
   font-weight:700;
-  margin:20px 0;
+  margin:15px 0;
 }
 
 .message{
   text-align:justify;
-  line-height:1.8;
+  line-height:1.7;
   color:#e2e8f0;
-  border-left:3px solid #facc15;
-  padding-left:12px;
-  margin-top:15px;
+  font-size:14px;
 }
 
 .info{
-  margin-top:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:10px;
+  margin-top:18px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
 
 .box{
-  background:rgba(255,255,255,0.07);
-  padding:12px;
-  border-radius:12px;
+  background:rgba(255,255,255,0.08);
+  padding:10px;
+  border-radius:10px;
+  font-size:14px;
 }
 
 button{
-  margin-top:25px;
+  margin-top:20px;
   width:100%;
   padding:14px;
   border:none;
   border-radius:12px;
   background:#facc15;
   font-weight:bold;
-  cursor:pointer;
+  font-size:15px;
 }
 
 #status{
-  margin-top:15px;
-  font-weight:bold;
+  margin-top:12px;
+  font-size:14px;
 }
 
-.error{
-  color:#f87171;
-}
+.error{ color:#f87171; }
+.success{ color:#86efac; }
 </style>
 
 </head>
@@ -95,7 +94,7 @@ button{
 
 <div class="card">
 
-<h1>Invitation Officielle</h1>
+<h1>🎟️ Invitation Officielle</h1>
 
 <div class="nom">
 Cher(e) <span id="nom">Chargement...</span>
@@ -118,11 +117,12 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 
 </div>
 
-<!-- ================= FIREBASE ================= -->
+<!-- 🔥 FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* 🔥 CONFIG FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyA1k-kGz178KNhuEhJ5QPWqs5AXrOvB5bI",
   authDomain: "invitations-qrcode.firebaseapp.com",
@@ -135,7 +135,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ================= 67 INVITÉS ================= */
+/* 👥 67 INVITÉS */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -206,19 +206,20 @@ const invites = {
 "RC0067":"Fr Ephraïm"
 };
 
-/* ================= QR ================= */
-const code = new URLSearchParams(location.search).get("code");
+/* 📲 QR CODE */
+const code = new URLSearchParams(window.location.search).get("code");
 const nom = invites[code];
 
 document.getElementById("nom").textContent =
-nom ? nom : "Invité inconnu";
+nom || "Invité inconnu";
 
-/* ================= CONFIRMATION ================= */
+/* ✔ CONFIRMATION FIREBASE */
 window.confirmer = async function(){
 
+  const status = document.getElementById("status");
+
   if(!code || !nom){
-    document.getElementById("status").innerHTML =
-    "<span class='error'>Code invalide</span>";
+    status.innerHTML = "<span class='error'>Code invalide</span>";
     return;
   }
 
@@ -229,497 +230,12 @@ window.confirmer = async function(){
       date: new Date().toISOString()
     });
 
-    document.getElementById("status").innerHTML =
-    "✔ Présence enregistrée avec succès 🙏";
+    status.innerHTML = "<span class='success'>✔ Présence enregistrée</span>";
 
   }catch(e){
-    document.getElementById("status").innerHTML =
-    "<span class='error'>Erreur Firebase</span>";
+    status.innerHTML = "<span class='error'>Erreur Firebase</span>";
   }
 };
-
-</script>
-
-</body>
-</html>!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitation Officielle - JPC MERI</title>
-
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  font-family:Segoe UI, sans-serif;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:linear-gradient(135deg,#0b1220,#1e293b,#0f172a);
-  color:#fff;
-  padding:20px;
-}
-
-.card{
-  width:100%;
-  max-width:750px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.12);
-  backdrop-filter:blur(18px);
-  border-radius:24px;
-  padding:30px;
-  box-shadow:0 25px 60px rgba(0,0,0,0.45);
-  text-align:center;
-}
-
-h1{
-  color:#facc15;
-  margin-bottom:10px;
-}
-
-.tag{
-  color:#cbd5e1;
-  margin-bottom:20px;
-}
-
-.nom{
-  font-size:1.4rem;
-  font-weight:700;
-  margin:20px 0;
-}
-
-.message{
-  text-align:justify;
-  line-height:1.8;
-  color:#e2e8f0;
-  border-left:3px solid #facc15;
-  padding-left:12px;
-}
-
-.info{
-  margin-top:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:10px;
-}
-
-.box{
-  background:rgba(255,255,255,0.07);
-  padding:12px;
-  border-radius:12px;
-}
-
-button{
-  margin-top:25px;
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:#facc15;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-#status{
-  margin-top:15px;
-  font-weight:bold;
-}
-
-.error{
-  color:#f87171;
-}
-</style>
-</head>
-
-<body>
-
-<div class="card">
-
-<h1>Invitation Officielle</h1>
-<div class="tag">Jeunesse Pour Christ • MERI / Paroisse Grain de Senevé</div>
-
-<div class="nom">
-Cher(e) <span id="nom">Chargement...</span>
-</div>
-
-<div class="message">
-Cher(e) révérend pasteur, papa, maman, frère, sœur en Christ,
-
-<br><br>
-
-La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé
-vous convie à un moment de rafraîchissement spirituel,
-d’échange de cadeaux et de communion fraternelle.
-
-<br><br>
-
-Votre présence honore ce temps de partage et d’unité en Christ.
-</div>
-
-<div class="info">
-<div class="box">📅 Dimanche 14 Juin 2026</div>
-<div class="box">📍 Restaurant LACAZZA</div>
-<div class="box">⏰ 15h00 précises</div>
-</div>
-
-<button onclick="confirmer()">✔ Confirmer ma présence</button>
-
-<div id="status"></div>
-
-</div>
-
-<!-- ================= FIREBASE ================= -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "XXX",
-  authDomain: "XXX",
-  projectId: "XXX",
-  storageBucket: "XXX",
-  messagingSenderId: "XXX",
-  appId: "XXX"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.savePresence = async (code, name) => {
-  await setDoc(doc(db, "invites", code), {
-    nom: name,
-    statut: "present",
-    date: new Date().toISOString()
-  });
-};
-</script>
-
-<!-- ================= LOGIQUE APP ================= -->
-<script>
-
-/* ================= INVITÉS ================= */
-const invites = {
-"RC0001":"Fr Emmanuel Bondo",
-"RC0002":"Fr Tonny Bwanga",
-"RC0003":"Fr Abel Dianda",
-"RC0004":"Fr Sylas Mutetelenu",
-"RC0005":"Fr Louis Tshimanga",
-"RC0006":"Fr Aimerance Kazal",
-"RC0007":"Sr Jolaine Mwika",
-"RC0008":"Sr Julia Yav",
-"RC0009":"Fr Christian Okota",
-"RC0010":"Fr Maurice Kasongo",
-"RC0011":"Sr Allegresse Simbove",
-"RC0012":"Sr Craintha Simbove",
-"RC0067":"Fr Ephraïm"
-};
-
-/* ================= QR ================= */
-const params = new URLSearchParams(location.search);
-const code = params.get("code");
-
-const nom = invites[code];
-
-document.getElementById("nom").textContent =
-nom ? nom : "Invité inconnu";
-
-/* ================= CONFIRMATION ================= */
-async function confirmer(){
-
-  if(!code || !nom){
-    document.getElementById("status").innerHTML =
-    "<span class='error'>Code invalide</span>";
-    return;
-  }
-
-  try{
-    await savePresence(code, nom);
-
-    document.getElementById("status").innerHTML =
-    "✔ Présence enregistrée avec succès 🙏";
-
-  }catch(e){
-    document.getElementById("status").innerHTML =
-    "<span class='error'>Erreur d’enregistrement</span>";
-  }
-}
-
-</script>
-
-</body>
-</html>!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitation Officielle - JPC MERI</title>
-
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-body{
-  font-family:Segoe UI, sans-serif;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:linear-gradient(135deg,#0b1220,#1e293b,#0f172a);
-  color:#fff;
-  padding:20px;
-}
-
-/* CARD */
-.card{
-  width:100%;
-  max-width:750px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.12);
-  backdrop-filter:blur(18px);
-  border-radius:24px;
-  padding:30px;
-  box-shadow:0 25px 60px rgba(0,0,0,0.45);
-  animation:fadeIn .8s ease;
-}
-
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(20px);}
-  to{opacity:1; transform:translateY(0);}
-}
-
-h1{
-  text-align:center;
-  color:#facc15;
-  font-size:1.9rem;
-  margin-bottom:10px;
-}
-
-.tag{
-  text-align:center;
-  color:#cbd5e1;
-  margin-bottom:20px;
-}
-
-/* NOM */
-.nom{
-  font-size:1.4rem;
-  font-weight:700;
-  text-align:center;
-  margin:20px 0;
-  color:#ffffff;
-}
-
-/* MESSAGE */
-.message{
-  line-height:1.9;
-  color:#e2e8f0;
-  font-size:1rem;
-  text-align:justify;
-  margin-top:15px;
-  border-left:3px solid #facc15;
-  padding-left:12px;
-}
-
-/* INFO BOX */
-.info{
-  margin-top:25px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:12px;
-}
-
-.box{
-  background:rgba(255,255,255,0.07);
-  padding:15px;
-  border-radius:14px;
-  text-align:center;
-}
-
-/* BUTTON */
-button{
-  margin-top:25px;
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:#facc15;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.2s;
-}
-
-button:hover{
-  transform:scale(1.02);
-}
-
-/* STATUS */
-#status{
-  margin-top:15px;
-  text-align:center;
-  font-weight:bold;
-  color:#86efac;
-}
-
-.error{
-  color:#f87171;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="card">
-
-<h1>Invitation Officielle</h1>
-<div class="tag">Jeunesse Pour Christ • MERI / Paroisse Grain de Senevé</div>
-
-<div class="nom">
-Cher(e) <span id="nom">Chargement...</span>
-</div>
-
-<div class="message">
-Cher(e) révérend pasteur, papa, maman, frère, sœur en Christ,
-
-<br><br>
-
-La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé
-vous convie respectueusement à un moment de rafraîchissement spirituel,
-d’échange de cadeaux et de communion fraternelle.
-
-<br><br>
-
-Nous croyons que votre présence honorera ce temps de partage, d’unité
-et de croissance dans la foi.
-
-</div>
-
-<div class="info">
-<div class="box">📅 Dimanche 14 Juin 2026</div>
-<div class="box">📍 Restaurant LACAZZA</div>
-<div class="box">⏰ 15h00 précises</div>
-</div>
-
-<button onclick="confirmer()">✔ Confirmer ma présence</button>
-
-<div id="status"></div>
-
-</div>
-
-<script>
-
-/* =========================
-   BASE INVITÉS
-========================= */
-const invites = {
-"RC0001":"Fr Emmanuel Bondo",
-"RC0002":"Fr Tonny Bwanga",
-"RC0003":"Fr Abel Dianda",
-"RC0004":"Fr Sylas Mutetelenu",
-"RC0005":"Fr Louis Tshimanga",
-"RC0006":"Fr Aimerance Kazal",
-"RC0007":"Sr Jolaine Mwika",
-"RC0008":"Sr Julia Yav",
-"RC0009":"Fr Christian Okota",
-"RC0010":"Fr Maurice Kasongo",
-"RC0011":"Sr Allegresse Simbove",
-"RC0012":"Sr Craintha Simbove",
-"RC0013":"Fr Martin Fine",
-"RC0014":"Sr Jireh Topele",
-"RC0015":"Fr Blaise Lwashi",
-"RC0016":"Fr Alex Nawej",
-"RC0017":"Maman Lydia Mukonda",
-"RC0018":"Fr Lumière Mbuyi",
-"RC0019":"Fr Roméo Lufungula",
-"RC0020":"Fr Marc Kyabo",
-"RC0021":"Fr Héritier Sangwa",
-"RC0022":"Fr Jonathan Kabunda",
-"RC0023":"Fr Ariel Kiyonge",
-"RC0024":"Fr Donatien Kabala",
-"RC0025":"Fr Sylvain Kumena",
-"RC0026":"Sr Gloria Mbindi",
-"RC0027":"Fr Misaël Meshack",
-"RC0028":"Fr Esaïe Kabunda",
-"RC0029":"Fr Trésor Ntambwe",
-"RC0030":"Fr Gamaliel Kalambo",
-"RC0031":"Sr Sephora Yumba",
-"RC0032":"Sr Arisia Yumba",
-"RC0033":"Sr Julia Mbala",
-"RC0034":"Sr Elisa Nzweba",
-"RC0035":"Sr Rosette Lwaisha",
-"RC0036":"Fr Gamaliel Muland",
-"RC0037":"Sr Myriam Kalenga",
-"RC0038":"Fr Jérémie Yumba",
-"RC0039":"Fr Grace Alphonse",
-"RC0040":"Sr Anne Kabwe",
-"RC0041":"Fr Gad Mukalay",
-"RC0042":"Sr L'Or Kabwit",
-"RC0043":"Sr Viviane Nduwa",
-"RC0044":"Sr Rebecca Itwamba",
-"RC0045":"Sr Alice Furah",
-"RC0046":"Sr Acacia Percide Margueritte",
-"RC0047":"Sr Marie Kasongo",
-"RC0048":"Sr Gloire Watshika",
-"RC0049":"Fr Guy Kalala",
-"RC0050":"Fr David Sangwa",
-"RC0051":"Fr Josué Musans",
-"RC0052":"Sr Abigaël Mulunda",
-"RC0053":"Fr Josué Kabange",
-"RC0054":"Sr Clémence Mujinga",
-"RC0055":"Sr Esther Ngalula",
-"RC0056":"Fr Christian Kambendja",
-"RC0057":"Fr David Iledephose",
-"RC0058":"Fr Claude Botamali",
-"RC0059":"Sr Christine",
-"RC0060":"Sr Adassa",
-"RC0061":"Fr Victoire Kyungu",
-"RC0062":"Sr Sarah Mayeta",
-"RC0063":"Fr Samuel Ngoy",
-"RC0064":"Fr Crinovic Simbove",
-"RC0065":"Fr Yann Kabuya",
-"RC0066":"Sr Melissa",
-"RC0067":"Fr Ephraïm"
-};
-
-/* =========================
-   QR CODE READ
-========================= */
-const code = new URLSearchParams(location.search).get("code");
-
-const nom = invites[code];
-
-const nomEl = document.getElementById("nom");
-
-if(nom){
-  nomEl.textContent = nom;
-}else{
-  nomEl.textContent = "Invité inconnu";
-  document.getElementById("status").innerHTML =
-  "<span class='error'>Code invalide ou non reconnu</span>";
-}
-
-/* =========================
-   CONFIRMATION (LOCAL)
-========================= */
-function confirmer(){
-  if(!nom){
-    document.getElementById("status").innerHTML =
-    "<span class='error'>Impossible de confirmer sans invitation valide</span>";
-    return;
-  }
-
-  document.getElementById("status").innerHTML =
-  "✔ Présence enregistrée. Merci et soyez béni(e) 🙏";
-}
 
 </script>
 
