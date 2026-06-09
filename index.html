@@ -77,6 +77,7 @@ button{
   background:#facc15;
   font-weight:bold;
   font-size:15px;
+  cursor:pointer;
 }
 
 #status{
@@ -86,6 +87,12 @@ button{
 
 .error{ color:#f87171; }
 .success{ color:#86efac; }
+
+/* 🔥 AJOUT UX */
+.loading{
+  opacity:0.7;
+  font-style:italic;
+}
 </style>
 
 </head>
@@ -97,7 +104,7 @@ button{
 <h1>🎟️ Invitation Officielle</h1>
 
 <div class="nom">
-Cher(e) <span id="nom">Chargement...</span>
+Cher(e) <span id="nom" class="loading">Chargement...</span>
 </div>
 
 <div class="message">
@@ -117,7 +124,6 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 
 </div>
 
-<!-- 🔥 FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -206,26 +212,36 @@ const invites = {
 "RC0067":"Fr Ephraïm"
 };
 
-/* 📲 QR CODE */
-const code = new URLSearchParams(window.location.search).get("code");
-const nom = invites[code];
+/* 📲 GET CODE */
+const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
 
-document.getElementById("nom").textContent =
-nom || "Invité inconnu";
+/* 🔥 VALIDATION */
+const nomFinal = invites[code];
+
+const nomEl = document.getElementById("nom");
+
+if(nomFinal){
+  nomEl.textContent = nomFinal;
+  nomEl.classList.remove("loading");
+}else{
+  nomEl.textContent = "Invité inconnu";
+  nomEl.classList.remove("loading");
+}
 
 /* ✔ CONFIRMATION FIREBASE */
 window.confirmer = async function(){
 
   const status = document.getElementById("status");
 
-  if(!code || !nom){
+  if(!code || !nomFinal){
     status.innerHTML = "<span class='error'>Code invalide</span>";
     return;
   }
 
   try{
     await setDoc(doc(db, "invites", code), {
-      nom: nom,
+      nom: nomFinal,
       statut: "present",
       date: new Date().toISOString()
     });
