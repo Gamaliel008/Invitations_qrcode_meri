@@ -3,20 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitation - Jeunesse Pour Christ</title>
+<title>Invitation Officielle - JPC MERI</title>
 
 <style>
-:root{
-  --gold:#facc15;
-  --bg1:#0f172a;
-  --bg2:#1e293b;
-  --bg3:#334155;
-  --text:#f8fafc;
-  --muted:#cbd5e1;
-  --green:#22c55e;
-  --red:#ef4444;
-}
-
 *{
   margin:0;
   padding:0;
@@ -24,168 +13,158 @@
 }
 
 body{
+  font-family:Segoe UI, sans-serif;
   min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
+  background:linear-gradient(135deg,#0b1220,#1e293b,#0f172a);
+  color:#fff;
   padding:20px;
-  font-family:Segoe UI, sans-serif;
-  background:linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3));
-  background-size:400% 400%;
-  animation:bg 10s ease infinite;
-  color:var(--text);
 }
 
-@keyframes bg{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
-}
-
+/* CARD */
 .card{
   width:100%;
-  max-width:780px;
-  background:rgba(255,255,255,0.08);
+  max-width:750px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
   backdrop-filter:blur(18px);
-  border-radius:28px;
+  border-radius:24px;
   padding:30px;
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 25px 60px rgba(0,0,0,0.4);
-  text-align:center;
-  animation:fade 0.8s ease;
+  box-shadow:0 25px 60px rgba(0,0,0,0.45);
+  animation:fadeIn .8s ease;
 }
 
-@keyframes fade{
-  from{opacity:0; transform:translateY(20px)}
-  to{opacity:1; transform:translateY(0)}
-}
-
-.badge{
-  display:inline-block;
-  padding:8px 16px;
-  border-radius:999px;
-  background:rgba(250,204,21,0.15);
-  color:var(--gold);
-  font-weight:bold;
-  margin-bottom:15px;
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
 }
 
 h1{
-  color:var(--gold);
-  font-size:2rem;
+  text-align:center;
+  color:#facc15;
+  font-size:1.9rem;
   margin-bottom:10px;
 }
 
-.subtitle{
-  color:var(--muted);
+.tag{
+  text-align:center;
+  color:#cbd5e1;
   margin-bottom:20px;
 }
 
-.guest{
-  font-size:1.3rem;
-  font-weight:bold;
+/* NOM */
+.nom{
+  font-size:1.4rem;
+  font-weight:700;
+  text-align:center;
   margin:20px 0;
+  color:#ffffff;
 }
 
+/* MESSAGE */
 .message{
-  line-height:1.8;
+  line-height:1.9;
   color:#e2e8f0;
+  font-size:1rem;
+  text-align:justify;
+  margin-top:15px;
+  border-left:3px solid #facc15;
+  padding-left:12px;
 }
 
+/* INFO BOX */
 .info{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:15px;
   margin-top:25px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
 }
 
 .box{
-  background:rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.07);
   padding:15px;
-  border-radius:15px;
+  border-radius:14px;
+  text-align:center;
 }
 
-.countdown{
-  margin-top:20px;
-  color:var(--gold);
-  font-weight:bold;
-}
-
-.actions{
-  margin-top:25px;
-  display:flex;
-  gap:12px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-
+/* BUTTON */
 button{
-  padding:12px 18px;
+  margin-top:25px;
+  width:100%;
+  padding:14px;
   border:none;
   border-radius:12px;
-  cursor:pointer;
+  background:#facc15;
   font-weight:bold;
+  cursor:pointer;
+  transition:.2s;
 }
 
-.btn1{background:var(--gold)}
-.btn2{background:white}
+button:hover{
+  transform:scale(1.02);
+}
 
-.status{
+/* STATUS */
+#status{
   margin-top:15px;
-  display:none;
-  color:var(--green);
+  text-align:center;
+  font-weight:bold;
+  color:#86efac;
 }
 
-.bad{
-  color:var(--red);
+.error{
+  color:#f87171;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="card">
 
-<div class="badge">🎁 Invitation Officielle</div>
+<h1>Invitation Officielle</h1>
+<div class="tag">Jeunesse Pour Christ • MERI / Paroisse Grain de Senevé</div>
 
-<h1>Moment de Rafraîchissement</h1>
-
-<div class="subtitle">
-Jeunesse Pour Christ • MERI / Paroisse Grain de Senevé
-</div>
-
-<div class="guest">
-Cher(e) <span id="nomInvite">Invité</span>
+<div class="nom">
+Cher(e) <span id="nom">Chargement...</span>
 </div>
 
 <div class="message">
-La Jeunesse Pour Christ vous invite à un moment de communion fraternelle,
-d’échange de cadeaux et de rafraîchissement spirituel.
+Cher(e) révérend pasteur, papa, maman, frère, sœur en Christ,
+
+<br><br>
+
+La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé
+vous convie respectueusement à un moment de rafraîchissement spirituel,
+d’échange de cadeaux et de communion fraternelle.
+
+<br><br>
+
+Nous croyons que votre présence honorera ce temps de partage, d’unité
+et de croissance dans la foi.
+
 </div>
 
 <div class="info">
-<div class="box">📅 <b>Dimanche 14 Juin 2026</b></div>
-<div class="box">📍 <b>Restaurant LACAZZA</b></div>
-<div class="box">⏰ <b>15h00</b></div>
+<div class="box">📅 Dimanche 14 Juin 2026</div>
+<div class="box">📍 Restaurant LACAZZA</div>
+<div class="box">⏰ 15h00 précises</div>
 </div>
 
-<div class="countdown" id="countdown"></div>
+<button onclick="confirmer()">✔ Confirmer ma présence</button>
 
-<div class="actions">
-<button class="btn1" onclick="confirm()">✔ Je serai présent(e)</button>
-<button class="btn2" onclick="copy()">📋 Copier code</button>
-</div>
-
-<div class="status" id="status">Merci pour votre confirmation 🙏</div>
+<div id="status"></div>
 
 </div>
 
 <script>
 
 /* =========================
-   BASE INVITÉS (67)
+   BASE INVITÉS
 ========================= */
-
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -257,51 +236,35 @@ const invites = {
 };
 
 /* =========================
-   CODE INVITÉ
+   QR CODE READ
 ========================= */
+const code = new URLSearchParams(location.search).get("code");
 
-const code = new URLSearchParams(location.search).get("invcode");
+const nom = invites[code];
 
-const name = invites[code];
+const nomEl = document.getElementById("nom");
 
-document.getElementById("nomInvite").textContent =
-name ? name : "Invité inconnu";
-
-/* =========================
-   RSVP LOCAL (Firebase après)
-========================= */
-
-function confirm(){
-  document.getElementById("status").style.display="block";
-  localStorage.setItem(code,"present");
+if(nom){
+  nomEl.textContent = nom;
+}else{
+  nomEl.textContent = "Invité inconnu";
+  document.getElementById("status").innerHTML =
+  "<span class='error'>Code invalide ou non reconnu</span>";
 }
 
 /* =========================
-   COPY CODE
+   CONFIRMATION (LOCAL)
 ========================= */
+function confirmer(){
+  if(!nom){
+    document.getElementById("status").innerHTML =
+    "<span class='error'>Impossible de confirmer sans invitation valide</span>";
+    return;
+  }
 
-function copy(){
-  navigator.clipboard.writeText(code || "");
-  alert("Code copié !");
+  document.getElementById("status").innerHTML =
+  "✔ Présence enregistrée. Merci et soyez béni(e) 🙏";
 }
-
-/* =========================
-   COMPTE À REBOURS
-========================= */
-
-const target = new Date("2026-06-14T15:00:00").getTime();
-
-setInterval(()=>{
-  const now = new Date().getTime();
-  const diff = target - now;
-
-  const d = Math.floor(diff/(1000*60*60*24));
-  const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-  const m = Math.floor((diff%(1000*60*60))/(1000*60));
-
-  document.getElementById("countdown").innerText =
-  `⏳ ${d}j ${h}h ${m}m`;
-},1000);
 
 </script>
 
