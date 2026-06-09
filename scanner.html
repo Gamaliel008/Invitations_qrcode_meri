@@ -1,6 +1,172 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Système Invitation QR</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:system-ui;
+}
+
+body{
+  background:linear-gradient(135deg,#0b1220,#1e293b);
+  color:white;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:15px;
+}
+
+.container{
+  width:100%;
+  max-width:700px;
+  background:rgba(255,255,255,0.06);
+  padding:20px;
+  border-radius:16px;
+  text-align:center;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
+  border:none;
+}
+
+button{
+  margin-top:10px;
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#facc15;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#qrcode{
+  margin-top:15px;
+  display:flex;
+  justify-content:center;
+}
+
+#reader{
+  margin-top:20px;
+}
+
+.card{
+  margin-top:20px;
+  background:rgba(255,255,255,0.08);
+  padding:15px;
+  border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🎟️ Système Invitation QR</h2>
+
+<!-- GENERATEUR -->
+<h3>📌 Générer QR invité</h3>
+
+<input id="codeInput" placeholder="Ex: RC0001">
+<button onclick="generateQR()">Générer QR</button>
+
+<div id="qrcode"></div>
+
+<!-- SCANNER -->
+<h3 style="margin-top:25px;">📲 Scanner QR</h3>
+
+<button onclick="startScanner()">Démarrer scan</button>
+
+<div id="reader"></div>
+
+<!-- INVITATION -->
+<div class="card" id="invitation" style="display:none;">
+<h3>🎉 Invitation Officielle</h3>
+<p><strong id="nom">Invité</strong></p>
+
+<p>
+La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé vous convie à un moment de rafraîchissement, d’échange de cadeaux et de communion fraternelle.
+</p>
+
+<p>📅 Dimanche 14 Juin 2026</p>
+<p>📍 Restaurant LACAZZA</p>
+<p>⏰ 15h00</p>
+</div>
+
+</div>
+
+<script>
+
+/* 👥 LISTE INVITÉS */
+const invites = {
+"RC0001":"Fr Emmanuel Bondo",
+"RC0002":"Fr Tonny Bwanga",
+"RC0003":"Fr Abel Dianda",
+"RC0004":"Fr Sylas Mutetelenu",
+"RC0067":"Fr Ephraïm"
+};
+
+/* 🔥 GENERER QR */
+function generateQR(){
+  let code = document.getElementById("codeInput").value;
+
+  if(!code){
+    alert("Entre un code");
+    return;
+  }
+
+  document.getElementById("qrcode").innerHTML = "";
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: `https://gamaliel008.github.io/Invitations_qrcode_meri/?code=${code}`,
+    width:200,
+    height:200
+  });
+}
+
+/* 📲 SCANNER */
+function startScanner(){
+
+  let scanner = new Html5QrcodeScanner(
+    "reader",
+    { fps:10, qrbox:250 }
+  );
+
+  scanner.render((decodedText) => {
+
+    let url = new URL(decodedText);
+    let code = url.searchParams.get("code");
+
+    document.getElementById("invitation").style.display = "block";
+
+    document.getElementById("nom").innerText =
+      invites[code] || "Invité inconnu";
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>!DOCTYPE html>
+<html lang="fr">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Scanner QR - Entrée</title>
