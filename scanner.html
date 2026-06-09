@@ -16,23 +16,24 @@
 }
 
 body{
-  background:linear-gradient(135deg,#0b1220,#1e293b);
-  color:white;
   min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
+  background:linear-gradient(135deg,#0b1220,#1e293b);
+  color:white;
   padding:15px;
 }
 
 .container{
   width:100%;
-  max-width:500px;
+  max-width:520px;
   text-align:center;
 }
 
 h2{
   color:#facc15;
+  margin-bottom:10px;
 }
 
 button{
@@ -41,8 +42,9 @@ button{
   border:none;
   border-radius:10px;
   background:#22c55e;
-  color:white;
   font-weight:bold;
+  color:white;
+  cursor:pointer;
 }
 
 #reader{
@@ -56,11 +58,21 @@ button{
   padding:15px;
   border-radius:12px;
   display:none;
+  animation: fade 0.3s ease-in-out;
 }
 
 #status{
   margin-top:10px;
   font-size:14px;
+  opacity:0.9;
+}
+
+.ok{ color:#86efac; }
+.err{ color:#f87171; }
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
 }
 </style>
 
@@ -76,82 +88,148 @@ button{
 
 <div id="reader"></div>
 
-<div id="status">En attente...</div>
+<div id="status">En attente du scan...</div>
 
 <div class="card" id="invitation">
+
 <h3>🎉 Invitation Officielle</h3>
+
 <p><strong id="nom">Invité</strong></p>
 
-<p>
-La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé vous convie à un moment de rafraîchissement, d’échange de cadeaux et de communion fraternelle.
+<p style="margin-top:10px; font-size:14px; line-height:1.6;">
+La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé
+vous convie à un moment de rafraîchissement, d’échange de cadeaux et de communion fraternelle.
 </p>
 
 <p>📅 Dimanche 14 Juin 2026</p>
 <p>📍 Restaurant LACAZZA</p>
 <p>⏰ 15h00</p>
+
 </div>
 
 </div>
 
 <script>
 
-/* 👥 LISTE INVITÉS (alignée avec index.html) */
+/* 👥 LISTE INVITÉS (67 personnes alignées avec index) */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
 "RC0003":"Fr Abel Dianda",
 "RC0004":"Fr Sylas Mutetelenu",
 "RC0005":"Fr Louis Tshimanga",
+"RC0006":"Fr Aimerance Kazal",
+"RC0007":"Sr Jolaine Mwika",
+"RC0008":"Sr Julia yav",
+"RC0009":"Fr Christian Okota",
+"RC0010":"Fr Maurice Kasongo",
+"RC0011":"Sr Allegresse Simbove",
+"RC0012":"Sr Craintha Simbove",
+"RC0013":"Fr Martin Fine",
+"RC0014":"Sr Jireh Topele",
+"RC0015":"Fr Blaise Lwashi",
+"RC0016":"Fr Alex Nawej",
+"RC0017":"Maman Lydia Mukonda",
+"RC0018":"Fr Lumière Mbuyi",
+"RC0019":"Fr Roméo Lufungula",
+"RC0020":"Fr Marc Kyabo",
+"RC0021":"Fr Héritier Sangwa",
+"RC0022":"Fr Jonathan Kabunda",
+"RC0023":"Fr Ariel Kiyonge",
+"RC0024":"Fr Donatien Kabala",
+"RC0025":"Fr Sylvain Kumena",
+"RC0026":"Sr Gloria Mbindi",
+"RC0027":"Fr Misaël Meshack",
+"RC0028":"Fr Esaïe Kabunda",
+"RC0029":"Fr Tresor Ntambwe",
+"RC0030":"Fr Gamaliel Kalambo",
+"RC0031":"Sr Sephora Yumba",
+"RC0032":"Sr Arisia Yumba",
+"RC0033":"Sr Julia Mbala",
+"RC0034":"Sr Elisa Nzweba",
+"RC0035":"Sr Rosette Lwaisha",
+"RC0036":"Fr Gamaliel Muland",
+"RC0037":"Sr Myriam Kalenga",
+"RC0038":"Fr Jérémie Yumba",
+"RC0039":"Fr Grace Alphonse",
+"RC0040":"Sr Anne Kabwe",
+"RC0041":"Fr Gad Mukalay",
+"RC0042":"Sr L’or Kabwit",
+"RC0043":"Sr Viviane Nduwa",
+"RC0044":"Sr Rebecca Itwamba",
+"RC0045":"Sr Alice Furah",
+"RC0046":"Sr Acacia Percide Margueritte",
+"RC0047":"Sr Marie Kasongo",
+"RC0048":"Sr Gloire Watshika",
+"RC0049":"Fr Guy Kalala",
+"RC0050":"Fr David Sangwa",
+"RC0051":"Fr Josué Musans",
+"RC0052":"Sr Abigaël Mulunda",
+"RC0053":"Fr Josué Kabange",
+"RC0054":"Sr Clémence Mujinga",
+"RC0055":"Sr Esther Ngalula",
+"RC0056":"Fr Christian Kambendja",
+"RC0057":"Fr David Iledephose",
+"RC0058":"Fr Claude Botamali",
+"RC0059":"Sr Christine",
+"RC0060":"Sr Adassa",
+"RC0061":"Fr Victoire Kyungu",
+"RC0062":"Sr Sarah Mayeta",
+"RC0063":"Fr Samuel Ngoy",
+"RC0064":"Fr Crinovic Simbove",
+"RC0065":"Fr Yann Kabuya",
+"RC0066":"Sr Melissa",
 "RC0067":"Fr Ephraïm"
 };
 
-let scannerInstance;
+let scanner;
 
-/* 📲 START SCANNER */
+/* 🚀 START SCANNER */
 function startScanner(){
 
   document.getElementById("reader").style.display = "block";
+  document.getElementById("status").innerText = "📷 Activation caméra...";
 
-  document.getElementById("status").innerText =
-  "📷 Activation caméra...";
-
-  scannerInstance = new Html5QrcodeScanner(
+  scanner = new Html5QrcodeScanner(
     "reader",
     { fps: 10, qrbox: 250 }
   );
 
-  scannerInstance.render(onScanSuccess, onScanError);
+  scanner.render(onScanSuccess, onScanError);
+}
+
+/* ✔ PARSE QR */
+function extractCode(text){
+
+  try{
+    if(text.includes("code=")){
+      const url = new URL(text);
+      return url.searchParams.get("code");
+    }
+  }catch(e){}
+
+  return text?.trim();
 }
 
 /* ✔ SUCCESS */
 function onScanSuccess(decodedText){
 
-  let code = decodedText;
+  const code = extractCode(decodedText);
 
-  try{
-    // si QR contient URL
-    if(decodedText.includes("code=")){
-      let url = new URL(decodedText);
-      code = url.searchParams.get("code");
-    }
+  const nom = invites[code];
 
-    document.getElementById("invitation").style.display = "block";
+  document.getElementById("invitation").style.display = "block";
 
-    document.getElementById("nom").innerText =
-      invites[code] || "Invité inconnu";
+  document.getElementById("nom").innerText =
+    nom || "Invité inconnu";
 
-    document.getElementById("status").innerText =
-    "✔ QR détecté : " + code;
-
-  }catch(e){
-    document.getElementById("status").innerText =
-    "❌ QR invalide";
-  }
+  document.getElementById("status").innerHTML =
+    `<span class="ok">✔ QR détecté : ${code}</span>`;
 }
 
 /* ❌ ERROR */
-function onScanError(error){
-  // silencieux volontaire (évite spam console mobile)
+function onScanError(err){
+  // silencieux (mobile friendly)
 }
 
 </script>
