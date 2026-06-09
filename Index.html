@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitation Personnalisée</title>
+<title>Invitation - Jeunesse Pour Christ</title>
 
 <style>
 *{
@@ -17,21 +17,21 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    font-family:'Segoe UI',sans-serif;
     background:linear-gradient(135deg,#0f172a,#1e293b,#334155);
+    font-family:'Segoe UI',sans-serif;
     padding:20px;
 }
 
 .card{
     width:100%;
-    max-width:650px;
+    max-width:700px;
     background:rgba(255,255,255,0.08);
     backdrop-filter:blur(15px);
     border-radius:25px;
     padding:35px;
     color:white;
     text-align:center;
-    box-shadow:0 15px 40px rgba(0,0,0,.3);
+    box-shadow:0 15px 40px rgba(0,0,0,.4);
     border:1px solid rgba(255,255,255,.15);
 }
 
@@ -42,33 +42,31 @@ body{
 
 h1{
     color:#facc15;
-    margin-bottom:10px;
-    font-size:2rem;
+    margin-bottom:20px;
 }
 
 .guest{
-    color:#ffffff;
-    font-size:1.3rem;
-    margin-bottom:25px;
+    font-size:1.25rem;
     font-weight:bold;
+    color:#ffffff;
+    margin-bottom:25px;
 }
 
 .message{
-    line-height:1.8;
-    margin-bottom:25px;
+    line-height:1.9;
     color:#e2e8f0;
+    margin-bottom:25px;
 }
 
 .info{
     background:rgba(255,255,255,.08);
-    padding:20px;
     border-radius:15px;
-    margin:20px 0;
+    padding:20px;
+    margin-top:20px;
 }
 
 .info p{
-    margin:10px 0;
-    font-size:1.05rem;
+    margin:12px 0;
 }
 
 .footer{
@@ -78,61 +76,149 @@ h1{
     font-weight:bold;
 }
 
-.signature{
-    margin-top:15px;
+.secretaire{
+    margin-top:25px;
     color:#cbd5e1;
     font-style:italic;
 }
 
-@media(max-width:600px){
-    .card{
-        padding:25px;
-    }
-
-    h1{
-        font-size:1.6rem;
-    }
+.code{
+    margin-top:15px;
+    color:#facc15;
+    font-size:14px;
 }
 </style>
-</head>
 
+</head>
 <body>
 
 <div class="card">
 
-    <div class="logo">🎁</div>
+<div class="logo">🎁</div>
 
-    <h1>INVITATION</h1>
+<h1>INVITATION PERSONNALISÉE</h1>
 
-    <div class="guest">
-        Cher(e) Frère/Sœur <span id="nomInvite">Nom de l'invité</span>
-    </div>
+<div class="guest">
+Cher(e) <span id="nomInvite">Invité</span>
+</div>
 
-    <div class="message">
-        La Jeunesse pour Christ de l'Église MERI / Paroisse Grain de Senevé
-        a l'honneur de vous inviter à un moment de rafraîchissement,
-        d'échange de cadeaux et de communion fraternelle.
-    </div>
+<div class="message">
+La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé
+vous demande de rehausser de votre présence à un moment de
+rafraîchissement, d'échange de cadeaux et de communion fraternelle
+qui se tiendra le <strong>Dimanche 14 Juin 2026</strong>.
+</div>
 
-    <div class="info">
-        <p>📅 <strong>Date :</strong> Dimanche 14 Juin 2026</p>
-        <p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
-        <p>⏰ <strong>Heure :</strong> 15h00</p>
-    </div>
+<div class="info">
+<p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
+<p>⏰ <strong>Heure :</strong> 15h00</p>
+</div>
 
-    <div class="footer">
-        Cordiale bienvenue 🙏
-    </div>
+<div class="footer">
+🙏 Cordiale bienvenue
+</div>
 
-    <div class="signature">
-        Jeunesse Pour Christ
-    </div>
+<div class="secretaire">
+Secrétaire : Fr. Jonathan Kabunda
+</div>
+
+<div class="code">
+Code invitation : <span id="codeInvite"></span>
+</div>
 
 </div>
 
 <script>
-// Exemple temporaire
-document.getElementById("nomInvite").textContent = "Gamaliel Kalambo";
+
+const invites = {
+
+"RC0001":"Fr Emmanuel Bondo",
+"RC0002":"Fr Tonny Bwanga",
+"RC0003":"Fr Abel Dianda",
+"RC0004":"Fr Sylas Mutetelenu",
+"RC0005":"Fr Louis Tshimanga",
+"RC0006":"Fr Aimerance Kazal",
+"RC0007":"Sr Jolaine Mwika",
+"RC0008":"Sr Julia Yav",
+"RC0009":"Fr Christian Okota",
+"RC0010":"Fr Maurice Kasongo",
+
+"RC0011":"Sr Allegresse Simbove",
+"RC0012":"Sr Craintha Simbove",
+"RC0013":"Fr Martin Fine",
+"RC0014":"Sr Jireh Topele",
+"RC0015":"Fr Blaise Lwashi",
+"RC0016":"Fr Alex Nawej",
+"RC0017":"Maman Lydia Mukonda",
+"RC0018":"Fr Lumière Mbuyi",
+"RC0019":"Fr Roméo Lufungula",
+"RC0020":"Fr Marc Kyabo",
+
+"RC0021":"Fr Héritier Sangwa",
+"RC0022":"Fr Jonathan Kabunda",
+"RC0023":"Fr Ariel Kiyonge",
+"RC0024":"Fr Donatien Kabala",
+"RC0025":"Fr Sylvain Kumena",
+"RC0026":"Sr Gloria Mbindi",
+"RC0027":"Fr Misaël Meshack",
+"RC0028":"Fr Esaïe Kabunda",
+"RC0029":"Fr Trésor Ntambwe",
+"RC0030":"Fr Gamaliel Kalambo",
+
+"RC0031":"Sr Sephora Yumba",
+"RC0032":"Sr Arisia Yumba",
+"RC0033":"Sr Julia Mbala",
+"RC0034":"Sr Elisa Nzweba",
+"RC0035":"Sr Rosette Lwaisha",
+"RC0036":"Fr Gamaliel Muland",
+"RC0037":"Sr Myriam Kalenga",
+"RC0038":"Fr Jérémie Yumba",
+"RC0039":"Fr Grace Alphonse",
+"RC0040":"Sr Anne Kabwe",
+
+"RC0041":"Fr Gad Mukalay",
+"RC0042":"Sr L'Or Kabwit",
+"RC0043":"Sr Viviane Nduwa",
+"RC0044":"Sr Rebecca Itwamba",
+"RC0045":"Sr Alice Furah",
+"RC0046":"Sr Acacia Percide Margueritte",
+"RC0047":"Sr Marie Kasongo",
+"RC0048":"Sr Gloire Watshika",
+"RC0049":"Fr Guy Kalala",
+"RC0050":"Fr David Sangwa",
+
+"RC0051":"Fr Josué Musans",
+"RC0052":"Sr Abigaël Mulunda",
+"RC0053":"Fr Josué Kabange",
+"RC0054":"Sr Clémence Mujinga",
+"RC0055":"Sr Esther Ngalula",
+"RC0056":"Fr Christian Kambendja",
+"RC0057":"Fr David Iledephose",
+"RC0058":"Fr Claude Botamali",
+"RC0059":"Sr Christine",
+"RC0060":"Sr Adassa",
+
+"RC0061":"Fr Victoire Kyungu",
+"RC0062":"Sr Sarah Mayeta",
+"RC0063":"Fr Samuel Ngoy",
+"RC0064":"Fr Crinovic Simbove",
+"RC0065":"Fr Yann Kabuya",
+"RC0066":"Sr Melissa",
+"RC0067":"Fr Ephraïm"
+
+};
+
+const params = new URLSearchParams(window.location.search);
+const code = params.get("invcode");
+
+document.getElementById("codeInvite").textContent = code || "NON DÉFINI";
+
+if(invites[code]){
+    document.getElementById("nomInvite").textContent = invites[code];
+}else{
+    document.getElementById("nomInvite").textContent = "Invité non identifié";
+}
+
 </script>
 
 </body>
