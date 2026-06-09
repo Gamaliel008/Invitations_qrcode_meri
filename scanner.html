@@ -1,6 +1,155 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scanner QR - Entrée</title>
+
+  <!-- Librairie QR -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    :root{
+      --bg:#0f172a;
+      --card:#111827;
+      --accent:#facc15;
+      --text:#e5e7eb;
+      --success:#22c55e;
+      --error:#ef4444;
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:system-ui, -apple-system, Segoe UI, Roboto;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,#0b1220,#1e293b);
+      color:var(--text);
+      padding:16px;
+    }
+
+    .container{
+      width:100%;
+      max-width:520px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:18px;
+      padding:20px;
+      text-align:center;
+      backdrop-filter:blur(12px);
+    }
+
+    h1{
+      font-size:18px;
+      margin-bottom:10px;
+      color:var(--accent);
+    }
+
+    p{
+      font-size:14px;
+      opacity:0.9;
+      margin-bottom:15px;
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:10px;
+      background:var(--success);
+      color:white;
+      font-weight:600;
+      font-size:15px;
+      cursor:pointer;
+      margin-bottom:15px;
+    }
+
+    button:active{
+      transform:scale(0.98);
+    }
+
+    #reader{
+      width:100%;
+      border-radius:12px;
+      overflow:hidden;
+      display:none;
+    }
+
+    #status{
+      margin-top:12px;
+      font-size:14px;
+      word-break:break-word;
+    }
+
+    .ok{ color:var(--success); }
+    .err{ color:var(--error); }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <h1>📲 Scanner QR Code</h1>
+    <p>Appuie sur démarrer puis autorise la caméra</p>
+
+    <button onclick="startScanner()">Démarrer le scan</button>
+
+    <div id="reader"></div>
+
+    <div id="status">En attente du scan...</div>
+
+  </main>
+
+  <script>
+    let scanner;
+
+    function startScanner() {
+      const reader = document.getElementById("reader");
+      reader.style.display = "block";
+
+      document.getElementById("status").innerHTML =
+        "📷 Caméra en cours d'activation...";
+
+      scanner = new Html5QrcodeScanner(
+        "reader",
+        {
+          fps: 10,
+          qrbox: 250,
+          aspectRatio: 1.0
+        },
+        false
+      );
+
+      scanner.render(onScanSuccess, onScanError);
+    }
+
+    function onScanSuccess(decodedText) {
+      document.getElementById("status").innerHTML =
+        "<span class='ok'>✔ QR détecté</span>";
+
+      // petite pause UX
+      setTimeout(() => {
+        window.location.href = decodedText;
+      }, 800);
+    }
+
+    function onScanError(error) {
+      // volontairement silencieux
+    }
+  </script>
+
+</body>
+</html>!DOCTYPE html>
+<html lang="fr">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scanner QR</title>
