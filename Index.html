@@ -6,132 +6,187 @@
 <title>Invitation - Jeunesse Pour Christ</title>
 
 <style>
+:root{
+  --gold:#facc15;
+  --bg1:#0f172a;
+  --bg2:#1e293b;
+  --bg3:#334155;
+  --text:#f8fafc;
+  --muted:#cbd5e1;
+  --green:#22c55e;
+  --red:#ef4444;
+}
+
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
 body{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(135deg,#0f172a,#1e293b,#334155);
-    font-family:'Segoe UI',sans-serif;
-    padding:20px;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  font-family:Segoe UI, sans-serif;
+  background:linear-gradient(-45deg,var(--bg1),var(--bg2),var(--bg3));
+  background-size:400% 400%;
+  animation:bg 10s ease infinite;
+  color:var(--text);
+}
+
+@keyframes bg{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 
 .card{
-    width:100%;
-    max-width:700px;
-    background:rgba(255,255,255,0.08);
-    backdrop-filter:blur(15px);
-    border-radius:25px;
-    padding:35px;
-    color:white;
-    text-align:center;
-    box-shadow:0 15px 40px rgba(0,0,0,.4);
-    border:1px solid rgba(255,255,255,.15);
+  width:100%;
+  max-width:780px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(18px);
+  border-radius:28px;
+  padding:30px;
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 25px 60px rgba(0,0,0,0.4);
+  text-align:center;
+  animation:fade 0.8s ease;
 }
 
-.logo{
-    font-size:60px;
-    margin-bottom:15px;
+@keyframes fade{
+  from{opacity:0; transform:translateY(20px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+.badge{
+  display:inline-block;
+  padding:8px 16px;
+  border-radius:999px;
+  background:rgba(250,204,21,0.15);
+  color:var(--gold);
+  font-weight:bold;
+  margin-bottom:15px;
 }
 
 h1{
-    color:#facc15;
-    margin-bottom:20px;
+  color:var(--gold);
+  font-size:2rem;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  color:var(--muted);
+  margin-bottom:20px;
 }
 
 .guest{
-    font-size:1.25rem;
-    font-weight:bold;
-    color:#ffffff;
-    margin-bottom:25px;
+  font-size:1.3rem;
+  font-weight:bold;
+  margin:20px 0;
 }
 
 .message{
-    line-height:1.9;
-    color:#e2e8f0;
-    margin-bottom:25px;
+  line-height:1.8;
+  color:#e2e8f0;
 }
 
 .info{
-    background:rgba(255,255,255,.08);
-    border-radius:15px;
-    padding:20px;
-    margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+  margin-top:25px;
 }
 
-.info p{
-    margin:12px 0;
+.box{
+  background:rgba(255,255,255,0.08);
+  padding:15px;
+  border-radius:15px;
 }
 
-.footer{
-    margin-top:25px;
-    color:#86efac;
-    font-size:1.2rem;
-    font-weight:bold;
+.countdown{
+  margin-top:20px;
+  color:var(--gold);
+  font-weight:bold;
 }
 
-.secretaire{
-    margin-top:25px;
-    color:#cbd5e1;
-    font-style:italic;
+.actions{
+  margin-top:25px;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
 }
 
-.code{
-    margin-top:15px;
-    color:#facc15;
-    font-size:14px;
+button{
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.btn1{background:var(--gold)}
+.btn2{background:white}
+
+.status{
+  margin-top:15px;
+  display:none;
+  color:var(--green);
+}
+
+.bad{
+  color:var(--red);
 }
 </style>
-
 </head>
+
 <body>
 
 <div class="card">
 
-<div class="logo">🎁</div>
+<div class="badge">🎁 Invitation Officielle</div>
 
-<h1>INVITATION PERSONNALISÉE</h1>
+<h1>Moment de Rafraîchissement</h1>
+
+<div class="subtitle">
+Jeunesse Pour Christ • MERI / Paroisse Grain de Senevé
+</div>
 
 <div class="guest">
 Cher(e) <span id="nomInvite">Invité</span>
 </div>
 
 <div class="message">
-La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé
-vous demande de rehausser de votre présence à un moment de
-rafraîchissement, d'échange de cadeaux et de communion fraternelle
-qui se tiendra le <strong>Dimanche 14 Juin 2026</strong>.
+La Jeunesse Pour Christ vous invite à un moment de communion fraternelle,
+d’échange de cadeaux et de rafraîchissement spirituel.
 </div>
 
 <div class="info">
-<p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
-<p>⏰ <strong>Heure :</strong> 15h00</p>
+<div class="box">📅 <b>Dimanche 14 Juin 2026</b></div>
+<div class="box">📍 <b>Restaurant LACAZZA</b></div>
+<div class="box">⏰ <b>15h00</b></div>
 </div>
 
-<div class="footer">
-🙏 Cordiale bienvenue
+<div class="countdown" id="countdown"></div>
+
+<div class="actions">
+<button class="btn1" onclick="confirm()">✔ Je serai présent(e)</button>
+<button class="btn2" onclick="copy()">📋 Copier code</button>
 </div>
 
-<div class="secretaire">
-Secrétaire : Fr. Jonathan Kabunda
-</div>
-
-<div class="code">
-Code invitation : <span id="codeInvite"></span>
-</div>
+<div class="status" id="status">Merci pour votre confirmation 🙏</div>
 
 </div>
 
 <script>
 
-const invites = {
+/* =========================
+   BASE INVITÉS (67)
+========================= */
 
+const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
 "RC0003":"Fr Abel Dianda",
@@ -142,7 +197,6 @@ const invites = {
 "RC0008":"Sr Julia Yav",
 "RC0009":"Fr Christian Okota",
 "RC0010":"Fr Maurice Kasongo",
-
 "RC0011":"Sr Allegresse Simbove",
 "RC0012":"Sr Craintha Simbove",
 "RC0013":"Fr Martin Fine",
@@ -153,7 +207,6 @@ const invites = {
 "RC0018":"Fr Lumière Mbuyi",
 "RC0019":"Fr Roméo Lufungula",
 "RC0020":"Fr Marc Kyabo",
-
 "RC0021":"Fr Héritier Sangwa",
 "RC0022":"Fr Jonathan Kabunda",
 "RC0023":"Fr Ariel Kiyonge",
@@ -164,7 +217,6 @@ const invites = {
 "RC0028":"Fr Esaïe Kabunda",
 "RC0029":"Fr Trésor Ntambwe",
 "RC0030":"Fr Gamaliel Kalambo",
-
 "RC0031":"Sr Sephora Yumba",
 "RC0032":"Sr Arisia Yumba",
 "RC0033":"Sr Julia Mbala",
@@ -175,7 +227,6 @@ const invites = {
 "RC0038":"Fr Jérémie Yumba",
 "RC0039":"Fr Grace Alphonse",
 "RC0040":"Sr Anne Kabwe",
-
 "RC0041":"Fr Gad Mukalay",
 "RC0042":"Sr L'Or Kabwit",
 "RC0043":"Sr Viviane Nduwa",
@@ -186,7 +237,6 @@ const invites = {
 "RC0048":"Sr Gloire Watshika",
 "RC0049":"Fr Guy Kalala",
 "RC0050":"Fr David Sangwa",
-
 "RC0051":"Fr Josué Musans",
 "RC0052":"Sr Abigaël Mulunda",
 "RC0053":"Fr Josué Kabange",
@@ -197,7 +247,6 @@ const invites = {
 "RC0058":"Fr Claude Botamali",
 "RC0059":"Sr Christine",
 "RC0060":"Sr Adassa",
-
 "RC0061":"Fr Victoire Kyungu",
 "RC0062":"Sr Sarah Mayeta",
 "RC0063":"Fr Samuel Ngoy",
@@ -205,19 +254,54 @@ const invites = {
 "RC0065":"Fr Yann Kabuya",
 "RC0066":"Sr Melissa",
 "RC0067":"Fr Ephraïm"
-
 };
 
-const params = new URLSearchParams(window.location.search);
-const code = params.get("invcode");
+/* =========================
+   CODE INVITÉ
+========================= */
 
-document.getElementById("codeInvite").textContent = code || "NON DÉFINI";
+const code = new URLSearchParams(location.search).get("invcode");
 
-if(invites[code]){
-    document.getElementById("nomInvite").textContent = invites[code];
-}else{
-    document.getElementById("nomInvite").textContent = "Invité non identifié";
+const name = invites[code];
+
+document.getElementById("nomInvite").textContent =
+name ? name : "Invité inconnu";
+
+/* =========================
+   RSVP LOCAL (Firebase après)
+========================= */
+
+function confirm(){
+  document.getElementById("status").style.display="block";
+  localStorage.setItem(code,"present");
 }
+
+/* =========================
+   COPY CODE
+========================= */
+
+function copy(){
+  navigator.clipboard.writeText(code || "");
+  alert("Code copié !");
+}
+
+/* =========================
+   COMPTE À REBOURS
+========================= */
+
+const target = new Date("2026-06-14T15:00:00").getTime();
+
+setInterval(()=>{
+  const now = new Date().getTime();
+  const diff = target - now;
+
+  const d = Math.floor(diff/(1000*60*60*24));
+  const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+  const m = Math.floor((diff%(1000*60*60))/(1000*60));
+
+  document.getElementById("countdown").innerText =
+  `⏳ ${d}j ${h}h ${m}m`;
+},1000);
 
 </script>
 
