@@ -23,6 +23,218 @@ body{
   padding:20px;
 }
 
+.card{
+  width:100%;
+  max-width:750px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter:blur(18px);
+  border-radius:24px;
+  padding:30px;
+  box-shadow:0 25px 60px rgba(0,0,0,0.45);
+  text-align:center;
+}
+
+h1{
+  color:#facc15;
+  margin-bottom:10px;
+}
+
+.tag{
+  color:#cbd5e1;
+  margin-bottom:20px;
+}
+
+.nom{
+  font-size:1.4rem;
+  font-weight:700;
+  margin:20px 0;
+}
+
+.message{
+  text-align:justify;
+  line-height:1.8;
+  color:#e2e8f0;
+  border-left:3px solid #facc15;
+  padding-left:12px;
+}
+
+.info{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+}
+
+.box{
+  background:rgba(255,255,255,0.07);
+  padding:12px;
+  border-radius:12px;
+}
+
+button{
+  margin-top:25px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#facc15;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#status{
+  margin-top:15px;
+  font-weight:bold;
+}
+
+.error{
+  color:#f87171;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Invitation Officielle</h1>
+<div class="tag">Jeunesse Pour Christ • MERI / Paroisse Grain de Senevé</div>
+
+<div class="nom">
+Cher(e) <span id="nom">Chargement...</span>
+</div>
+
+<div class="message">
+Cher(e) révérend pasteur, papa, maman, frère, sœur en Christ,
+
+<br><br>
+
+La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé
+vous convie à un moment de rafraîchissement spirituel,
+d’échange de cadeaux et de communion fraternelle.
+
+<br><br>
+
+Votre présence honore ce temps de partage et d’unité en Christ.
+</div>
+
+<div class="info">
+<div class="box">📅 Dimanche 14 Juin 2026</div>
+<div class="box">📍 Restaurant LACAZZA</div>
+<div class="box">⏰ 15h00 précises</div>
+</div>
+
+<button onclick="confirmer()">✔ Confirmer ma présence</button>
+
+<div id="status"></div>
+
+</div>
+
+<!-- ================= FIREBASE ================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "XXX",
+  authDomain: "XXX",
+  projectId: "XXX",
+  storageBucket: "XXX",
+  messagingSenderId: "XXX",
+  appId: "XXX"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.savePresence = async (code, name) => {
+  await setDoc(doc(db, "invites", code), {
+    nom: name,
+    statut: "present",
+    date: new Date().toISOString()
+  });
+};
+</script>
+
+<!-- ================= LOGIQUE APP ================= -->
+<script>
+
+/* ================= INVITÉS ================= */
+const invites = {
+"RC0001":"Fr Emmanuel Bondo",
+"RC0002":"Fr Tonny Bwanga",
+"RC0003":"Fr Abel Dianda",
+"RC0004":"Fr Sylas Mutetelenu",
+"RC0005":"Fr Louis Tshimanga",
+"RC0006":"Fr Aimerance Kazal",
+"RC0007":"Sr Jolaine Mwika",
+"RC0008":"Sr Julia Yav",
+"RC0009":"Fr Christian Okota",
+"RC0010":"Fr Maurice Kasongo",
+"RC0011":"Sr Allegresse Simbove",
+"RC0012":"Sr Craintha Simbove",
+"RC0067":"Fr Ephraïm"
+};
+
+/* ================= QR ================= */
+const params = new URLSearchParams(location.search);
+const code = params.get("code");
+
+const nom = invites[code];
+
+document.getElementById("nom").textContent =
+nom ? nom : "Invité inconnu";
+
+/* ================= CONFIRMATION ================= */
+async function confirmer(){
+
+  if(!code || !nom){
+    document.getElementById("status").innerHTML =
+    "<span class='error'>Code invalide</span>";
+    return;
+  }
+
+  try{
+    await savePresence(code, nom);
+
+    document.getElementById("status").innerHTML =
+    "✔ Présence enregistrée avec succès 🙏";
+
+  }catch(e){
+    document.getElementById("status").innerHTML =
+    "<span class='error'>Erreur d’enregistrement</span>";
+  }
+}
+
+</script>
+
+</body>
+</html>!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitation Officielle - JPC MERI</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Segoe UI, sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#0b1220,#1e293b,#0f172a);
+  color:#fff;
+  padding:20px;
+}
+
 /* CARD */
 .card{
   width:100%;
