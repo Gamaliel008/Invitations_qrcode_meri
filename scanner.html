@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Système Invitation QR</title>
+<title>Scanner QR - Invitation</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
 <style>
 *{
@@ -28,40 +27,27 @@ body{
 
 .container{
   width:100%;
-  max-width:700px;
-  background:rgba(255,255,255,0.06);
-  padding:20px;
-  border-radius:16px;
+  max-width:500px;
   text-align:center;
 }
 
-input{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  border:none;
+h2{
+  color:#facc15;
 }
 
 button{
-  margin-top:10px;
   width:100%;
-  padding:12px;
+  padding:14px;
   border:none;
   border-radius:10px;
-  background:#facc15;
+  background:#22c55e;
+  color:white;
   font-weight:bold;
-  cursor:pointer;
-}
-
-#qrcode{
-  margin-top:15px;
-  display:flex;
-  justify-content:center;
 }
 
 #reader{
-  margin-top:20px;
+  margin-top:15px;
+  display:none;
 }
 
 .card{
@@ -69,33 +55,30 @@ button{
   background:rgba(255,255,255,0.08);
   padding:15px;
   border-radius:12px;
+  display:none;
+}
+
+#status{
+  margin-top:10px;
+  font-size:14px;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>🎟️ Système Invitation QR</h2>
+<h2>📲 Scanner QR Invitation</h2>
 
-<!-- GENERATEUR -->
-<h3>📌 Générer QR invité</h3>
-
-<input id="codeInput" placeholder="Ex: RC0001">
-<button onclick="generateQR()">Générer QR</button>
-
-<div id="qrcode"></div>
-
-<!-- SCANNER -->
-<h3 style="margin-top:25px;">📲 Scanner QR</h3>
-
-<button onclick="startScanner()">Démarrer scan</button>
+<button onclick="startScanner()">Démarrer le scan</button>
 
 <div id="reader"></div>
 
-<!-- INVITATION -->
-<div class="card" id="invitation" style="display:none;">
+<div id="status">En attente...</div>
+
+<div class="card" id="invitation">
 <h3>🎉 Invitation Officielle</h3>
 <p><strong id="nom">Invité</strong></p>
 
@@ -112,53 +95,63 @@ La Jeunesse Pour Christ de l’Église MERI / Paroisse Grain de Senevé vous con
 
 <script>
 
-/* 👥 LISTE INVITÉS */
+/* 👥 LISTE INVITÉS (alignée avec index.html) */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
 "RC0003":"Fr Abel Dianda",
 "RC0004":"Fr Sylas Mutetelenu",
+"RC0005":"Fr Louis Tshimanga",
 "RC0067":"Fr Ephraïm"
 };
 
-/* 🔥 GENERER QR */
-function generateQR(){
-  let code = document.getElementById("codeInput").value;
+let scannerInstance;
 
-  if(!code){
-    alert("Entre un code");
-    return;
-  }
-
-  document.getElementById("qrcode").innerHTML = "";
-
-  new QRCode(document.getElementById("qrcode"), {
-    text: `https://gamaliel008.github.io/Invitations_qrcode_meri/?code=${code}`,
-    width:200,
-    height:200
-  });
-}
-
-/* 📲 SCANNER */
+/* 📲 START SCANNER */
 function startScanner(){
 
-  let scanner = new Html5QrcodeScanner(
+  document.getElementById("reader").style.display = "block";
+
+  document.getElementById("status").innerText =
+  "📷 Activation caméra...";
+
+  scannerInstance = new Html5QrcodeScanner(
     "reader",
-    { fps:10, qrbox:250 }
+    { fps: 10, qrbox: 250 }
   );
 
-  scanner.render((decodedText) => {
+  scannerInstance.render(onScanSuccess, onScanError);
+}
 
-    let url = new URL(decodedText);
-    let code = url.searchParams.get("code");
+/* ✔ SUCCESS */
+function onScanSuccess(decodedText){
+
+  let code = decodedText;
+
+  try{
+    // si QR contient URL
+    if(decodedText.includes("code=")){
+      let url = new URL(decodedText);
+      code = url.searchParams.get("code");
+    }
 
     document.getElementById("invitation").style.display = "block";
 
     document.getElementById("nom").innerText =
       invites[code] || "Invité inconnu";
 
-  });
+    document.getElementById("status").innerText =
+    "✔ QR détecté : " + code;
 
+  }catch(e){
+    document.getElementById("status").innerText =
+    "❌ QR invalide";
+  }
+}
+
+/* ❌ ERROR */
+function onScanError(error){
+  // silencieux volontaire (évite spam console mobile)
 }
 
 </script>
