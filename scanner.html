@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scanner QR - Invitation</title>
+
+<title>Scanner QR - Invitation MERI</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -111,7 +112,7 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 
 <script>
 
-/* 👥 LISTE INVITÉS (67 personnes) */
+/* 👥 BASE IDENTIQUE À INDEX (67 invités) */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -184,7 +185,7 @@ const invites = {
 
 let scanner;
 
-/* 🚀 START SCANNER */
+/* 🚀 START CAMERA */
 function startScanner(){
 
   document.getElementById("reader").style.display = "block";
@@ -192,14 +193,13 @@ function startScanner(){
 
   scanner = new Html5QrcodeScanner(
     "reader",
-    { fps: 10, qrbox: 250 },
-    false
+    { fps: 10, qrbox: 250 }
   );
 
   scanner.render(onScanSuccess, onScanError);
 }
 
-/* 🧠 EXTRACTION INTELLIGENTE */
+/* 🔍 EXTRACT CODE (QR OU URL) */
 function extractCode(text){
 
   if(!text) return null;
@@ -213,7 +213,7 @@ function extractCode(text){
   return text.trim();
 }
 
-/* ✔ SUCCESS SCAN */
+/* ✔ SUCCESS */
 function onScanSuccess(decodedText){
 
   const code = extractCode(decodedText);
@@ -225,27 +225,20 @@ function onScanSuccess(decodedText){
   card.style.display = "block";
 
   if(nom){
-
     document.getElementById("nom").innerText = nom;
-
-    status.innerHTML =
-      `<span class="ok">✔ Code valide : ${code}</span>`;
-
+    status.innerHTML = `<span class="ok">✔ Code valide : ${code}</span>`;
   } else {
-
     document.getElementById("nom").innerText = "Invité inconnu";
-
-    status.innerHTML =
-      `<span class="err">❌ Code invalide : ${code}</span>`;
+    status.innerHTML = `<span class="err">❌ Code invalide : ${code}</span>`;
   }
 
-  // stop scan après réussite
+  // stop scanner proprement
   scanner.clear().catch(()=>{});
 }
 
-/* ❌ ERROR SILENCIEUX */
+/* ❌ ERROR (silencieux mobile) */
 function onScanError(err){
-  // rien (mobile stable)
+  // rien
 }
 
 </script>
