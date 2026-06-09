@@ -112,7 +112,7 @@ vous convie à un moment de rafraîchissement, d’échange de cadeaux et de com
 
 <script>
 
-/* 👥 BASE IDENTIQUE À INDEX (67 invités) */
+/* 👥 BASE EXACTE INDEX (67 invités) */
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -183,37 +183,39 @@ const invites = {
 "RC0067":"Fr Ephraïm"
 };
 
-let scanner;
+let scannerInstance;
 
-/* 🚀 START CAMERA */
+/* 🚀 START SCANNER */
 function startScanner(){
 
   document.getElementById("reader").style.display = "block";
   document.getElementById("status").innerText = "📷 Activation caméra...";
 
-  scanner = new Html5QrcodeScanner(
+  scannerInstance = new Html5QrcodeScanner(
     "reader",
     { fps: 10, qrbox: 250 }
   );
 
-  scanner.render(onScanSuccess, onScanError);
+  scannerInstance.render(onScanSuccess, onScanError);
 }
 
-/* 🔍 EXTRACT CODE (QR OU URL) */
+/* 🧠 CLEAN CODE (IMPORTANT POUR TON INDEX) */
 function extractCode(text){
 
   if(!text) return null;
 
   try{
+    // QR URL format
     if(text.includes("code=")){
       return new URL(text).searchParams.get("code");
     }
   }catch(e){}
 
-  return text.trim();
+  // raw code format
+  return text.replace(/[^A-Z0-9]/gi, "").trim();
 }
 
-/* ✔ SUCCESS */
+/* ✔ SCAN SUCCESS */
 function onScanSuccess(decodedText){
 
   const code = extractCode(decodedText);
@@ -226,19 +228,21 @@ function onScanSuccess(decodedText){
 
   if(nom){
     document.getElementById("nom").innerText = nom;
-    status.innerHTML = `<span class="ok">✔ Code valide : ${code}</span>`;
+    status.innerHTML = `<span class="ok">✔ Invité validé : ${code}</span>`;
   } else {
     document.getElementById("nom").innerText = "Invité inconnu";
     status.innerHTML = `<span class="err">❌ Code invalide : ${code}</span>`;
   }
 
-  // stop scanner proprement
-  scanner.clear().catch(()=>{});
+  // stop caméra propre (important pour performance mobile)
+  setTimeout(() => {
+    scannerInstance.clear().catch(()=>{});
+  }, 800);
 }
 
-/* ❌ ERROR (silencieux mobile) */
+/* ❌ SILENT ERROR */
 function onScanError(err){
-  // rien
+  // volontairement vide
 }
 
 </script>
