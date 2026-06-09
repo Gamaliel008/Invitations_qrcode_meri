@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
 <title>Scanner QR - Invitation MERI</title>
 
@@ -13,7 +13,7 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:system-ui;
+  font-family:system-ui, -apple-system, Segoe UI, Roboto;
 }
 
 body{
@@ -28,26 +28,37 @@ body{
 
 .container{
   width:100%;
-  max-width:520px;
+  max-width:550px;
   text-align:center;
 }
 
-h2{
+.header{
+  margin-bottom:20px;
+}
+
+h1{
   color:#facc15;
-  margin-bottom:10px;
+  font-size:24px;
+  margin-bottom:5px;
+}
+
+.subtitle{
+  font-size:14px;
+  opacity:0.8;
 }
 
 button{
   width:100%;
   padding:14px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   background:#22c55e;
   font-weight:bold;
   color:white;
   cursor:pointer;
   font-size:16px;
   transition:transform 0.2s, background 0.2s;
+  margin-bottom:10px;
 }
 
 button:hover{
@@ -55,26 +66,43 @@ button:hover{
   transform:scale(0.98);
 }
 
+button.stop{
+  background:#ef4444;
+}
+
+button.stop:hover{
+  background:#dc2626;
+}
+
 #reader{
   margin-top:15px;
   display:none;
   width:100%;
+  border-radius:12px;
+  overflow:hidden;
 }
 
 .card{
   margin-top:20px;
-  background:rgba(255,255,255,0.08);
+  background:linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
   backdrop-filter:blur(10px);
   padding:20px;
-  border-radius:12px;
+  border-radius:16px;
   display:none;
   animation: fade 0.3s ease-in-out;
   border:1px solid rgba(255,255,255,0.1);
 }
 
-.card h3{
+.card h2{
   color:#facc15;
   margin-bottom:15px;
+  font-size:20px;
+}
+
+.card h3{
+  color:#facc15;
+  margin-bottom:10px;
+  font-size:18px;
 }
 
 .card p{
@@ -86,28 +114,63 @@ button:hover{
 #status{
   margin-top:15px;
   font-size:14px;
-  opacity:0.9;
   padding:10px;
-  border-radius:8px;
+  border-radius:10px;
   background:rgba(0,0,0,0.3);
 }
 
-.ok{ color:#86efac; }
-.err{ color:#f87171; }
+.ok{ 
+  color:#86efac;
+  background:rgba(34,197,94,0.1);
+  padding:8px;
+  border-radius:8px;
+  display:inline-block;
+}
+
+.err{ 
+  color:#f87171;
+  background:rgba(248,113,113,0.1);
+  padding:8px;
+  border-radius:8px;
+  display:inline-block;
+}
 
 @keyframes fade{
   from{opacity:0; transform:translateY(10px);}
   to{opacity:1; transform:translateY(0);}
 }
 
-#stopScanBtn{
-  background:#ef4444;
+.scan-stats{
+  font-size:12px;
   margin-top:10px;
-  display:none;
+  opacity:0.7;
 }
 
-#stopScanBtn:hover{
-  background:#dc2626;
+#notification{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#facc15;
+  color:#0f172a;
+  padding:12px 20px;
+  border-radius:10px;
+  font-weight:bold;
+  display:none;
+  animation: slideUp 0.3s ease;
+  z-index:1000;
+  white-space:nowrap;
+}
+
+@keyframes slideUp{
+  from{
+    opacity:0;
+    transform:translateX(-50%) translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
 }
 </style>
 
@@ -117,18 +180,21 @@ button:hover{
 
 <div class="container">
 
-<h2>📲 Scanner QR Invitation</h2>
+<div class="header">
+<h1>📲 Scanner QR Code</h1>
+<div class="subtitle">Système d'invitation JPC MERI</div>
+</div>
 
-<button id="startBtn" onclick="startScanner()">Démarrer le scan</button>
-<button id="stopScanBtn" onclick="stopScanner()">Arrêter le scan</button>
+<button id="startBtn" onclick="startScanner()">▶️ Démarrer le scan</button>
+<button id="stopBtn" class="stop" onclick="stopScanner()" style="display:none">⏹️ Arrêter le scan</button>
 
 <div id="reader"></div>
 
-<div id="status">En attente du scan...</div>
+<div id="status">📱 Cliquez sur "Démarrer" pour activer la caméra</div>
 
-<div class="card" id="invitation">
-<h3>🎉 Invitation Officielle</h3>
-<p><strong id="nom">Invité</strong></p>
+<div class="card" id="invitationCard">
+<h2>🎉 Invitation Officielle</h2>
+<h3 id="guestName">Invité</h3>
 <p style="margin-top:10px; font-size:14px; line-height:1.6;">
 La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé
 vous convie à un moment de rafraîchissement, d'échange de cadeaux et de communion fraternelle.
@@ -140,9 +206,11 @@ vous convie à un moment de rafraîchissement, d'échange de cadeaux et de commu
 
 </div>
 
+<div id="notification"></div>
+
 <script>
 
-/* 👥 BASE DES INVITÉS (67 invités) */
+// Liste des invités (identique à l'autre page)
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -215,16 +283,31 @@ const invites = {
 
 let html5QrCode;
 let isScanning = false;
+let lastScannedCode = null;
+let scanTimeout;
 
-/* 🚀 START CAMERA */
+// Afficher une notification temporaire
+function showNotification(message, isError = false){
+  const notif = document.getElementById("notification");
+  notif.textContent = message;
+  notif.style.backgroundColor = isError ? "#ef4444" : "#facc15";
+  notif.style.color = isError ? "white" : "#0f172a";
+  notif.style.display = "block";
+  
+  setTimeout(() => {
+    notif.style.display = "none";
+  }, 3000);
+}
+
+// Démarrer le scanner
 async function startScanner(){
   const startBtn = document.getElementById("startBtn");
-  const stopBtn = document.getElementById("stopScanBtn");
+  const stopBtn = document.getElementById("stopBtn");
   const readerDiv = document.getElementById("reader");
   const statusDiv = document.getElementById("status");
   
   if(isScanning){
-    statusDiv.innerHTML = "<span class='err'>⚠️ Scan déjà en cours</span>";
+    showNotification("Scan déjà en cours", true);
     return;
   }
   
@@ -241,7 +324,7 @@ async function startScanner(){
     };
     
     await html5QrCode.start(
-      { facingMode: "environment" }, // caméra arrière par défaut
+      { facingMode: "environment" },
       config,
       onScanSuccess,
       onScanError
@@ -250,26 +333,28 @@ async function startScanner(){
     isScanning = true;
     startBtn.style.display = "none";
     stopBtn.style.display = "block";
-    statusDiv.innerHTML = "📸 Caméra active - Scannez un QR code";
+    statusDiv.innerHTML = "✅ Caméra active - Scannez un QR code";
+    showNotification("Caméra activée avec succès !");
     
   } catch(err){
     console.error("Erreur démarrage caméra:", err);
     statusDiv.innerHTML = "<span class='err'>❌ Impossible d'accéder à la caméra. Vérifiez les permissions.</span>";
     readerDiv.style.display = "none";
+    showNotification("Erreur: Impossible d'accéder à la caméra", true);
   }
 }
 
-/* 🛑 STOP CAMERA */
+// Arrêter le scanner
 async function stopScanner(){
   const startBtn = document.getElementById("startBtn");
-  const stopBtn = document.getElementById("stopScanBtn");
+  const stopBtn = document.getElementById("stopBtn");
   const readerDiv = document.getElementById("reader");
   const statusDiv = document.getElementById("status");
   
   if(html5QrCode && isScanning){
     try{
       await html5QrCode.stop();
-      html5QrCode.clear();
+      await html5QrCode.clear();
     } catch(err){
       console.error("Erreur arrêt scan:", err);
     }
@@ -279,76 +364,98 @@ async function stopScanner(){
   readerDiv.style.display = "none";
   startBtn.style.display = "block";
   stopBtn.style.display = "none";
-  statusDiv.innerHTML = "Scan arrêté. Cliquez sur 'Démarrer' pour recommencer.";
+  statusDiv.innerHTML = "⏹️ Scan arrêté. Cliquez sur 'Démarrer' pour recommencer.";
+  showNotification("Scan arrêté");
 }
 
-/* 🔍 EXTRACT CODE (QR OU URL) */
+// Extraire le code du QR
 function extractCode(text){
   if(!text) return null;
   
   text = text.trim();
   
-  // Si c'est une URL avec paramètre code=
-  if(text.includes("code=")){
-    try{
-      const url = new URL(text);
-      const code = url.searchParams.get("code");
-      if(code) return code;
-    } catch(e){
-      // Si l'URL est mal formée, on essaye avec regex
-      const match = text.match(/[?&]code=([^&]+)/);
-      if(match) return match[1];
-    }
+  // Chercher le paramètre code= dans l'URL
+  const codeMatch = text.match(/[?&]code=([^&]+)/);
+  if(codeMatch){
+    return codeMatch[1];
   }
   
-  // Sinon, retourner le texte tel quel (si c'est directement le code)
-  return text;
+  // Si le texte correspond directement à un code RCXXXX
+  if(text.match(/^RC00[0-9]{2}$/i)){
+    return text.toUpperCase();
+  }
+  
+  return null;
 }
 
-/* ✔ SUCCESS */
+// Traitement du scan réussi
 function onScanSuccess(decodedText){
+  // Éviter les scans multiples trop rapides
+  if(scanTimeout) clearTimeout(scanTimeout);
+  
   const code = extractCode(decodedText);
   const nom = invites[code];
   
   const status = document.getElementById("status");
-  const card = document.getElementById("invitation");
-  
-  card.style.display = "block";
+  const card = document.getElementById("invitationCard");
   
   if(nom){
-    document.getElementById("nom").innerText = nom;
-    status.innerHTML = `<span class="ok">✅ Code valide : ${code}<br>Bienvenue ${nom} !</span>`;
+    document.getElementById("guestName").innerHTML = `<span style="color:#facc15">${nom}</span>`;
+    card.style.display = "block";
+    status.innerHTML = `<span class="ok">✅ Scan réussi ! Code: ${code}<br>Bienvenue ${nom} !</span>`;
+    showNotification(`✅ Bienvenue ${nom} !`, false);
     
-    // Arrêter automatiquement le scan après un code valide
+    // Animation sur la carte
+    card.style.animation = "none";
     setTimeout(() => {
+      card.style.animation = "fade 0.3s ease-in-out";
+    }, 10);
+    
+    // Arrêter le scan après 3 secondes pour économiser la batterie
+    scanTimeout = setTimeout(() => {
       if(isScanning){
         stopScanner();
       }
-    }, 2000);
+    }, 3000);
     
   } else {
-    document.getElementById("nom").innerText = "Invité non trouvé";
-    status.innerHTML = `<span class="err">❌ Code invalide : ${code || "non reconnu"}</span>`;
+    card.style.display = "none";
+    document.getElementById("guestName").innerHTML = "Invité non trouvé";
+    status.innerHTML = `<span class="err">❌ Code invalide : ${code || "non reconnu"}<br>Veuillez scanner un QR code valide.</span>`;
+    showNotification(`❌ Code invalide: ${code || "non reconnu"}`, true);
   }
 }
 
-/* ❌ ERROR (silencieux pour éviter les spams) */
+// Erreur de scan (silencieuse)
 function onScanError(errorMessage){
-  // Ne pas afficher les erreurs pour éviter de spammer la console
-  // Les erreurs mineures sont normales pendant le scan
+  // Ignorer les erreurs normales
   if(errorMessage && errorMessage.includes("NotFoundException")){
-    return; // Ignorer les erreurs de frame sans QR code
+    return;
   }
-  console.warn("Erreur scan:", errorMessage);
+  // Log uniquement les erreurs importantes
+  if(errorMessage && !errorMessage.includes("video")){
+    console.warn("Erreur scan:", errorMessage);
+  }
 }
 
-// Nettoyer le scanner si la page est fermée
+// Vérifier si un code est passé dans l'URL (depuis un QR)
+window.addEventListener('load', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const codeFromUrl = urlParams.get('code');
+  if(codeFromUrl && invites[codeFromUrl]){
+    document.getElementById("invitationCard").style.display = "block";
+    document.getElementById("guestName").innerHTML = `<span style="color:#facc15">${invites[codeFromUrl]}</span>`;
+    document.getElementById("status").innerHTML = `<span class="ok">✅ Invitation chargée depuis le QR code !</span>`;
+    showNotification(`Bienvenue ${invites[codeFromUrl]} !`);
+  }
+});
+
+// Nettoyer à la fermeture
 window.addEventListener('beforeunload', () => {
   if(html5QrCode && isScanning){
     html5QrCode.stop().catch(() => {});
   }
 });
-
 </script>
 
 </body>
