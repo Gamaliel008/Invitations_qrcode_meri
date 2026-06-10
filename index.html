@@ -6,30 +6,6 @@
 <title>Invitation QR - JPC MERI</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
-<!-- Firebase SDKs -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getFirestore, collection, doc, getDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-  
-  const firebaseConfig = {
-    apiKey: "AIzaSyA1k-kGz178KNhuEhJ5QPWqs5AXrOvB5bI",
-    authDomain: "invitations-qrcode.firebaseapp.com",
-    projectId: "invitations-qrcode",
-    storageBucket: "invitations-qrcode.firebasestorage.app",
-    messagingSenderId: "716513403852",
-    appId: "1:716513403852:web:846355b629e612e8477369"
-  };
-  
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  
-  // Rendre disponibles les fonctions Firebase globalement
-  window.db = db;
-  window.getDoc = getDoc;
-  window.doc = doc;
-  window.collection = collection;
-</script>
-
 <style>
 *{
   margin:0;
@@ -154,11 +130,6 @@ button:hover{
   justify-content:center;
 }
 
-hr{
-  margin:20px 0;
-  opacity:0.2;
-}
-
 .loading{
   display:inline-block;
   width:16px;
@@ -227,11 +198,11 @@ hr{
 </div>
 
 <script>
-// Base URL du scanner
-const BASE_URL = window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + "scanner.html";
+// BASE URL MODIFIÉE POUR FONCTIONNER EN LOCAL
+const BASE_URL = "scanner.html";
 
-// Données des invités (fallback si Firebase n'est pas encore configuré)
-const invitesFallback = {
+// Données des invités
+const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
 "RC0003":"Fr Abel Dianda",
@@ -304,20 +275,9 @@ const invitesFallback = {
 let currentCode = "";
 let currentNom = "";
 
-// Fonction pour récupérer un invité depuis Firebase ou fallback
-async function getInviteByCode(code) {
-  if (window.db && window.getDoc && window.doc) {
-    try {
-      const docRef = window.doc(window.db, "invites", code);
-      const docSnap = await window.getDoc(docRef);
-      if (docSnap.exists()) {
-        return docSnap.data().nom || docSnap.data().name || null;
-      }
-    } catch(error) {
-      console.warn("Firebase error, using fallback:", error);
-    }
-  }
-  return invitesFallback[code] || null;
+// Fonction pour récupérer un invité
+function getInviteByCode(code) {
+  return invites[code] || null;
 }
 
 // Fonction principale pour charger l'invitation
@@ -336,8 +296,8 @@ async function chargerInvitation() {
   
   statusDiv.innerHTML = `<span class="info-status"><span class="loading"></span> Vérification en cours...</span>`;
   
-  try {
-    const nom = await getInviteByCode(code);
+  setTimeout(() => {
+    const nom = getInviteByCode(code);
     
     if(nom) {
       currentCode = code;
@@ -353,13 +313,7 @@ async function chargerInvitation() {
       currentCode = "";
       currentNom = "";
     }
-  } catch(error) {
-    console.error(error);
-    statusDiv.innerHTML = `<span class="error">❌ Erreur lors de la vérification</span>`;
-    nomSpan.innerHTML = "___________";
-    currentCode = "";
-    currentNom = "";
-  }
+  }, 500);
 }
 
 // Générer QR code personnel
@@ -394,7 +348,7 @@ function genererMonQR() {
   }
 }
 
-// Restaurer la dernière invitation si elle existe
+// Restaurer la dernière invitation
 window.addEventListener('load', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const codeFromUrl = urlParams.get('code');
@@ -406,7 +360,7 @@ window.addEventListener('load', async () => {
   } else {
     const lastCode = localStorage.getItem('lastInviteCode');
     const lastNom = localStorage.getItem('lastInviteNom');
-    if(lastCode && lastNom && invitesFallback[lastCode]) {
+    if(lastCode && lastNom && invites[lastCode]) {
       document.getElementById("matricule").value = lastCode;
       currentCode = lastCode;
       currentNom = lastNom;
