@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
 <title>Scanner QR - Invitation JPC MERI</title>
-
-<!-- HTML5 QR Code Library -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <style>
@@ -208,7 +205,6 @@ button.danger:hover{
   to{ transform:rotate(360deg); }
 }
 </style>
-
 </head>
 
 <body>
@@ -249,7 +245,7 @@ vous convie à prendre part à la fête d'échange des cadeaux et de communion f
 
 <script>
 
-// Données des invités
+// Données des invités (identiques à index.html)
 const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
@@ -324,44 +320,26 @@ let html5QrCode;
 let isScanning = false;
 let scanTimeout;
 
-// Afficher une notification
 function showNotification(message, isError = false){
   const notif = document.getElementById("notification");
   notif.textContent = message;
   notif.style.backgroundColor = isError ? "#ef4444" : "#facc15";
   notif.style.color = isError ? "white" : "#0f172a";
   notif.style.display = "block";
-  
-  setTimeout(() => {
-    notif.style.display = "none";
-  }, 3000);
+  setTimeout(() => { notif.style.display = "none"; }, 3000);
 }
 
-// Extraire le code du QR
 function extractCode(text){
   if(!text) return null;
-  
   text = text.trim();
-  
-  // Chercher le paramètre code= dans l'URL
   const codeMatch = text.match(/[?&]code=([^&]+)/);
-  if(codeMatch){
-    return codeMatch[1];
-  }
-  
-  // Si le texte correspond directement à un code RCXXXX
-  if(text.match(/^RC00[0-9]{2}$/i)){
-    return text.toUpperCase();
-  }
-  
+  if(codeMatch) return codeMatch[1];
+  if(text.match(/^RC00[0-9]{2}$/i)) return text.toUpperCase();
   return null;
 }
 
-// Traitement du scan réussi
 function onScanSuccess(decodedText){
-  // Éviter les scans multiples trop rapides
   if(scanTimeout) clearTimeout(scanTimeout);
-  
   const code = extractCode(decodedText);
   const status = document.getElementById("status");
   const card = document.getElementById("invitationCard");
@@ -380,52 +358,30 @@ function onScanSuccess(decodedText){
     card.style.display = "block";
     status.innerHTML = `<span class="ok">✅ Scan réussi !<br>Code: ${code}<br>Bienvenue ${nom} !</span>`;
     showNotification(`✅ Bienvenue ${nom} !`, false);
-    
-    // Animation sur la carte
     card.style.animation = "none";
-    setTimeout(() => {
-      card.style.animation = "fade 0.3s ease-in-out";
-    }, 10);
-    
-    // Arrêter le scan après 3 secondes pour économiser la batterie
-    scanTimeout = setTimeout(() => {
-      if(isScanning){
-        stopScanner();
-      }
-    }, 3000);
-    
+    setTimeout(() => { card.style.animation = "fade 0.3s ease-in-out"; }, 10);
+    scanTimeout = setTimeout(() => { if(isScanning) stopScanner(); }, 3000);
   } else {
     card.style.display = "none";
-    status.innerHTML = `<span class="err">❌ Code invalide : ${code}<br>Ce code ne correspond à aucune invitation.</span>`;
+    status.innerHTML = `<span class="err">❌ Code invalide : ${code}</span>`;
     showNotification(`❌ Code invalide: ${code}`, true);
   }
 }
 
-// Erreur de scan (silencieuse)
 function onScanError(errorMessage){
-  // Ignorer les erreurs normales de scan
-  if(errorMessage && (errorMessage.includes("NotFoundException") || errorMessage.includes("No MultiFormat"))){
-    return;
-  }
+  if(errorMessage && (errorMessage.includes("NotFoundException") || errorMessage.includes("No MultiFormat"))) return;
   console.warn("Erreur scan:", errorMessage);
 }
 
-// Démarrer le scanner
 async function startScanner(){
   const startBtn = document.getElementById("startBtn");
   const stopBtn = document.getElementById("stopBtn");
   const readerDiv = document.getElementById("reader");
   const statusDiv = document.getElementById("status");
   
-  if(isScanning){
-    showNotification("Scan déjà en cours", true);
-    return;
-  }
-  
-  // Vérifier que Html5Qrcode est chargé
+  if(isScanning){ showNotification("Scan déjà en cours", true); return; }
   if(typeof Html5Qrcode === 'undefined'){
-    statusDiv.innerHTML = "<span class='err'>❌ La bibliothèque de scan n'est pas chargée. Rafraîchissez la page.</span>";
-    showNotification("Erreur technique, rafraîchissez la page", true);
+    statusDiv.innerHTML = "<span class='err'>❌ La bibliothèque n'est pas chargée. Rafraîchissez.</span>";
     return;
   }
   
@@ -434,35 +390,19 @@ async function startScanner(){
   
   try{
     html5QrCode = new Html5Qrcode("reader");
-    
-    const config = {
-      fps: 10,
-      qrbox: { width: 250, height: 250 },
-      aspectRatio: 1.0
-    };
-    
-    await html5QrCode.start(
-      { facingMode: "environment" },
-      config,
-      onScanSuccess,
-      onScanError
-    );
-    
+    await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 }, onScanSuccess, onScanError);
     isScanning = true;
     startBtn.style.display = "none";
     stopBtn.style.display = "block";
     statusDiv.innerHTML = "✅ Caméra active - Scannez un QR code";
-    showNotification("Caméra activée avec succès !");
-    
+    showNotification("Caméra activée !");
   } catch(err){
-    console.error("Erreur démarrage caméra:", err);
-    statusDiv.innerHTML = "<span class='err'>❌ Impossible d'accéder à la caméra. Vérifiez les permissions.</span>";
+    statusDiv.innerHTML = "<span class='err'>❌ Impossible d'accéder à la caméra.</span>";
     readerDiv.style.display = "none";
-    showNotification("Erreur: Impossible d'accéder à la caméra", true);
+    showNotification("Erreur caméra", true);
   }
 }
 
-// Arrêter le scanner
 async function stopScanner(){
   const startBtn = document.getElementById("startBtn");
   const stopBtn = document.getElementById("stopBtn");
@@ -470,40 +410,28 @@ async function stopScanner(){
   const statusDiv = document.getElementById("status");
   
   if(html5QrCode && isScanning){
-    try{
-      await html5QrCode.stop();
-      await html5QrCode.clear();
-    } catch(err){
-      console.error("Erreur arrêt scan:", err);
-    }
+    try{ await html5QrCode.stop(); await html5QrCode.clear(); } catch(err){}
   }
-  
   isScanning = false;
   readerDiv.style.display = "none";
   startBtn.style.display = "block";
   stopBtn.style.display = "none";
   statusDiv.innerHTML = "⏹️ Scan arrêté. Cliquez sur 'Démarrer' pour recommencer.";
-  showNotification("Scan arrêté");
 }
 
-// Vérifier si un code est passé dans l'URL (depuis un QR)
 window.addEventListener('load', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const codeFromUrl = urlParams.get('code');
-  
   if(codeFromUrl && invites[codeFromUrl]){
     document.getElementById("invitationCard").style.display = "block";
     document.getElementById("guestName").innerHTML = `<span style="color:#facc15">${invites[codeFromUrl]}</span>`;
-    document.getElementById("status").innerHTML = `<span class="ok">✅ Invitation chargée depuis le QR code !<br>Bienvenue ${invites[codeFromUrl]}</span>`;
+    document.getElementById("status").innerHTML = `<span class="ok">✅ Invitation chargée !<br>Bienvenue ${invites[codeFromUrl]}</span>`;
     showNotification(`Bienvenue ${invites[codeFromUrl]} !`);
   }
 });
 
-// Nettoyer à la fermeture
 window.addEventListener('beforeunload', () => {
-  if(html5QrCode && isScanning){
-    html5QrCode.stop().catch(() => {});
-  }
+  if(html5QrCode && isScanning) html5QrCode.stop().catch(() => {});
 });
 </script>
 
