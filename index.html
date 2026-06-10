@@ -41,19 +41,33 @@ h1{
   margin-bottom:10px;
 }
 
+h2{
+  color:#facc15;
+  font-size:18px;
+  margin:15px 0;
+}
+
 input{
   width:100%;
   padding:12px;
   border-radius:10px;
   border:none;
-  margin:15px 0 10px 0;
+  margin:10px 0;
   font-size:14px;
   background:rgba(255,255,255,0.1);
   color:white;
+  text-align:center;
 }
 
 input::placeholder{
   color:rgba(255,255,255,0.5);
+}
+
+.pin-input{
+  font-size:24px;
+  letter-spacing:8px;
+  text-align:center;
+  font-family:monospace;
 }
 
 .message{
@@ -65,6 +79,7 @@ input::placeholder{
   background:rgba(255,255,255,0.05);
   padding:20px;
   border-radius:16px;
+  display:none;
 }
 
 .message p{
@@ -115,6 +130,15 @@ button:hover{
   transform:scale(0.98);
 }
 
+button.secondary{
+  background:#3b82f6;
+  color:white;
+}
+
+button.secondary:hover{
+  background:#2563eb;
+}
+
 #status{
   margin-top:12px;
   font-size:14px;
@@ -146,24 +170,27 @@ button:hover{
   to{ transform:rotate(360deg); }
 }
 
-::-webkit-scrollbar{
-  width:8px;
-}
-
-::-webkit-scrollbar-track{
-  background:rgba(255,255,255,0.1);
-  border-radius:10px;
-}
-
-::-webkit-scrollbar-thumb{
-  background:#facc15;
-  border-radius:10px;
-}
-
 .cordial{
   margin-top:15px;
   font-style:italic;
   color:#facc15;
+}
+
+.locked{
+  background:rgba(239,68,68,0.2);
+  border:1px solid #ef4444;
+}
+
+.unlocked{
+  background:rgba(34,197,94,0.2);
+  border:1px solid #86efac;
+}
+
+.pin-section{
+  background:rgba(0,0,0,0.3);
+  border-radius:16px;
+  padding:15px;
+  margin:15px 0;
 }
 </style>
 </head>
@@ -171,164 +198,119 @@ button:hover{
 <body>
 
 <div class="card">
-
 <h1>🎟️ Système d'Invitation JPC MERI</h1>
 
-<!-- MESSAGE AVEC LES POINTILLÉS À L'INTÉRIEUR -->
-<div class="message">
-  <p>Cher(e) révérend pasteur, papa, maman, frère, sœur, <strong class="points" id="nomInvite">___________</strong>,</p>
-  <p>La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé vous convie à prendre part à la fête d'échange des cadeaux et de communion fraternelle ce <strong>Dimanche 14 Juin 2026</strong>.</p>
-  <p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
-  <p>⏰ <strong>Heure :</strong> 15h00</p>
-  <p class="cordial">Cordiale bienvenue ! 🎉</p>
+<div class="pin-section" id="pinSection">
+  <h2>🔐 Accès sécurisé</h2>
+  <input id="matricule" type="text" placeholder="Matricule (Ex: RC0001)" autocomplete="off">
+  <input id="pinCode" class="pin-input" type="text" maxlength="4" placeholder="Code PIN à 4 chiffres" autocomplete="off">
+  <button onclick="verifierAcces()">🔓 Vérifier et accéder à l'invitation</button>
 </div>
 
-<!-- CHAMP MATRICULE -->
-<input id="matricule" type="text" placeholder="Entrez votre matricule (Ex: RC0001)" autocomplete="off">
+<div id="invitationContent" style="display:none;">
+  <div class="message" id="messageContent">
+    <p>Cher(e) révérend pasteur, papa, maman, frère, sœur, <strong class="points" id="nomInvite">___________</strong>,</p>
+    <p>La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé vous convie à prendre part à la fête d'échange des cadeaux et de communion fraternelle ce <strong>Dimanche 14 Juin 2026</strong>.</p>
+    <p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
+    <p>⏰ <strong>Heure :</strong> 15h00</p>
+    <p class="cordial">Cordiale bienvenue ! 🎉</p>
+  </div>
 
-<!-- BOUTON CHARGER MON INVITATION -->
-<button onclick="chargerInvitation()">📋 Charger mon invitation</button>
+  <div class="info">
+    <div class="box">📅 Dimanche 14 Juin 2026</div>
+    <div class="box">📍 Restaurant LACAZZA</div>
+    <div class="box">⏰ 15h00</div>
+  </div>
 
-<!-- BOUTON GÉNÉRER QR CODE -->
-<button onclick="genererMonQR()">🎟️ Générer mon QR code d'invitation</button>
+  <button onclick="genererMonQR()">🎟️ Générer mon QR code d'invitation</button>
+  <div id="qrBox"></div>
+</div>
 
-<div id="qrBox"></div>
 <div id="status"></div>
-
 </div>
 
 <script>
-// BASE URL MODIFIÉE POUR FONCTIONNER EN LOCAL
-const BASE_URL = "scanner.html";
-
 // Données des invités
 const invites = {
-"RC0001":"Fr Emmanuel Bondo",
-"RC0002":"Fr Tonny Bwanga",
-"RC0003":"Fr Abel Dianda",
-"RC0004":"Fr Sylas Mutetelenu",
-"RC0005":"Fr Louis Tshimanga",
-"RC0006":"Fr Aimerance Kazal",
-"RC0007":"Sr Jolaine Mwika",
-"RC0008":"Sr Julia yav",
-"RC0009":"Fr Christian Okota",
-"RC0010":"Fr Maurice Kasongo",
-"RC0011":"Sr Allegresse Simbove",
-"RC0012":"Sr Craintha Simbove",
-"RC0013":"Fr Martin Fine",
-"RC0014":"Sr Jireh Topele",
-"RC0015":"Fr Blaise Lwashi",
-"RC0016":"Fr Alex Nawej",
-"RC0017":"Maman Lydia Mukonda",
-"RC0018":"Fr Lumière Mbuyi",
-"RC0019":"Fr Roméo Lufungula",
-"RC0020":"Fr Marc Kyabo",
-"RC0021":"Fr Héritier Sangwa",
-"RC0022":"Fr Jonathan Kabunda",
-"RC0023":"Fr Ariel Kiyonge",
-"RC0024":"Fr Donatien Kabala",
-"RC0025":"Fr Sylvain Kumena",
-"RC0026":"Sr Gloria Mbindi",
-"RC0027":"Fr Misaël Meshack",
-"RC0028":"Fr Esaïe Kabunda",
-"RC0029":"Fr Tresor Ntambwe",
-"RC0030":"Fr Gamaliel Kalambo",
-"RC0031":"Sr Sephora Yumba",
-"RC0032":"Sr Arisia Yumba",
-"RC0033":"Sr Julia Mbala",
-"RC0034":"Sr Elisa Nzweba",
-"RC0035":"Sr Rosette Lwaisha",
-"RC0036":"Fr Gamaliel Muland",
-"RC0037":"Sr Myriam Kalenga",
-"RC0038":"Fr Jérémie Yumba",
-"RC0039":"Fr Grace Alphonse",
-"RC0040":"Sr Anne Kabwe",
-"RC0041":"Fr Gad Mukalay",
-"RC0042":"Sr L'or Kabwit",
-"RC0043":"Sr Viviane Nduwa",
-"RC0044":"Sr Rebecca Itwamba",
-"RC0045":"Sr Alice Furah",
-"RC0046":"Sr Acacia Percide Margueritte",
-"RC0047":"Sr Marie Kasongo",
-"RC0048":"Sr Gloire Watshika",
-"RC0049":"Fr Guy Kalala",
-"RC0050":"Fr David Sangwa",
-"RC0051":"Fr Josué Musans",
-"RC0052":"Sr Abigaël Mulunda",
-"RC0053":"Fr Josué Kabange",
-"RC0054":"Sr Clémence Mujinga",
-"RC0055":"Sr Esther Ngalula",
-"RC0056":"Fr Christian Kambendja",
-"RC0057":"Fr David Iledephose",
-"RC0058":"Fr Claude Botamali",
-"RC0059":"Sr Christine",
-"RC0060":"Sr Adassa",
-"RC0061":"Fr Victoire Kyungu",
-"RC0062":"Sr Sarah Mayeta",
-"RC0063":"Fr Samuel Ngoy",
-"RC0064":"Fr Crinovic Simbove",
-"RC0065":"Fr Yann Kabuya",
-"RC0066":"Sr Melissa",
-"RC0067":"Fr Ephraïm"
+"RC0001":"Fr Emmanuel Bondo","RC0002":"Fr Tonny Bwanga","RC0003":"Fr Abel Dianda","RC0004":"Fr Sylas Mutetelenu","RC0005":"Fr Louis Tshimanga","RC0006":"Fr Aimerance Kazal","RC0007":"Sr Jolaine Mwika","RC0008":"Sr Julia yav","RC0009":"Fr Christian Okota","RC0010":"Fr Maurice Kasongo","RC0011":"Sr Allegresse Simbove","RC0012":"Sr Craintha Simbove","RC0013":"Fr Martin Fine","RC0014":"Sr Jireh Topele","RC0015":"Fr Blaise Lwashi","RC0016":"Fr Alex Nawej","RC0017":"Maman Lydia Mukonda","RC0018":"Fr Lumière Mbuyi","RC0019":"Fr Roméo Lufungula","RC0020":"Fr Marc Kyabo","RC0021":"Fr Héritier Sangwa","RC0022":"Fr Jonathan Kabunda","RC0023":"Fr Ariel Kiyonge","RC0024":"Fr Donatien Kabala","RC0025":"Fr Sylvain Kumena","RC0026":"Sr Gloria Mbindi","RC0027":"Fr Misaël Meshack","RC0028":"Fr Esaïe Kabunda","RC0029":"Fr Tresor Ntambwe","RC0030":"Fr Gamaliel Kalambo","RC0031":"Sr Sephora Yumba","RC0032":"Sr Arisia Yumba","RC0033":"Sr Julia Mbala","RC0034":"Sr Elisa Nzweba","RC0035":"Sr Rosette Lwaisha","RC0036":"Fr Gamaliel Muland","RC0037":"Sr Myriam Kalenga","RC0038":"Fr Jérémie Yumba","RC0039":"Fr Grace Alphonse","RC0040":"Sr Anne Kabwe","RC0041":"Fr Gad Mukalay","RC0042":"Sr L'or Kabwit","RC0043":"Sr Viviane Nduwa","RC0044":"Sr Rebecca Itwamba","RC0045":"Sr Alice Furah","RC0046":"Sr Acacia Percide Margueritte","RC0047":"Sr Marie Kasongo","RC0048":"Sr Gloire Watshika","RC0049":"Fr Guy Kalala","RC0050":"Fr David Sangwa","RC0051":"Fr Josué Musans","RC0052":"Sr Abigaël Mulunda","RC0053":"Fr Josué Kabange","RC0054":"Sr Clémence Mujinga","RC0055":"Sr Esther Ngalula","RC0056":"Fr Christian Kambendja","RC0057":"Fr David Iledephose","RC0058":"Fr Claude Botamali","RC0059":"Sr Christine","RC0060":"Sr Adassa","RC0061":"Fr Victoire Kyungu","RC0062":"Sr Sarah Mayeta","RC0063":"Fr Samuel Ngoy","RC0064":"Fr Crinovic Simbove","RC0065":"Fr Yann Kabuya","RC0066":"Sr Melissa","RC0067":"Fr Ephraïm"
 };
 
 let currentCode = "";
 let currentNom = "";
+let isUnlocked = false;
 
-// Fonction pour récupérer un invité
-function getInviteByCode(code) {
-  return invites[code] || null;
-}
-
-// Fonction principale pour charger l'invitation
-async function chargerInvitation() {
+function verifierAcces() {
   const code = document.getElementById("matricule").value.trim().toUpperCase();
+  const pin = document.getElementById("pinCode").value.trim();
   const statusDiv = document.getElementById("status");
-  const nomSpan = document.getElementById("nomInvite");
   
-  if(!code) {
-    statusDiv.innerHTML = `<span class="error">❌ Veuillez entrer un matricule</span>`;
-    nomSpan.innerHTML = "___________";
-    currentCode = "";
-    currentNom = "";
+  if(!code || !pin){
+    statusDiv.innerHTML = "<span class='error'>❌ Veuillez entrer le matricule ET le code PIN</span>";
+    return;
+  }
+  
+  if(pin.length !== 4 || !/^\d+$/.test(pin)){
+    statusDiv.innerHTML = "<span class='error'>❌ Le code PIN doit contenir 4 chiffres</span>";
     return;
   }
   
   statusDiv.innerHTML = `<span class="info-status"><span class="loading"></span> Vérification en cours...</span>`;
   
   setTimeout(() => {
-    const nom = getInviteByCode(code);
+    // Récupérer les PINs stockés dans localStorage
+    const storedPins = JSON.parse(localStorage.getItem('invitationPins') || '{}');
+    const pinData = storedPins[code];
     
-    if(nom) {
-      currentCode = code;
-      currentNom = nom;
-      nomSpan.innerHTML = nom;
-      statusDiv.innerHTML = `<span class="success">✅ Code valide : ${code} - ${nom}</span>`;
-      
-      localStorage.setItem('lastInviteCode', code);
-      localStorage.setItem('lastInviteNom', nom);
-    } else {
-      nomSpan.innerHTML = "___________";
-      statusDiv.innerHTML = `<span class="error">❌ Code invalide : ${code}</span>`;
-      currentCode = "";
-      currentNom = "";
+    if(!pinData){
+      statusDiv.innerHTML = "<span class='error'>❌ Matricule invalide ou aucun PIN généré pour ce code</span>";
+      return;
     }
+    
+    if(pinData.pin !== pin){
+      statusDiv.innerHTML = "<span class='error'>❌ Code PIN incorrect !</span>";
+      return;
+    }
+    
+    if(pinData.utilise){
+      statusDiv.innerHTML = "<span class='error'>❌ Cette invitation a déjà été activée !</span>";
+      return;
+    }
+    
+    // PIN valide - activer l'invitation
+    pinData.utilise = true;
+    localStorage.setItem('invitationPins', JSON.stringify(storedPins));
+    
+    currentCode = code;
+    currentNom = pinData.nom;
+    isUnlocked = true;
+    
+    // Afficher le contenu de l'invitation
+    document.getElementById("pinSection").style.display = "none";
+    document.getElementById("invitationContent").style.display = "block";
+    document.getElementById("messageContent").style.display = "block";
+    document.getElementById("nomInvite").innerHTML = currentNom;
+    
+    statusDiv.innerHTML = `<span class="success">✅ Accès validé ! Bienvenue ${currentNom} !</span>`;
+    
+    // Stocker pour la session
+    sessionStorage.setItem('unlockedCode', currentCode);
+    sessionStorage.setItem('unlockedNom', currentNom);
+    
   }, 500);
 }
 
-// Générer QR code personnel
 function genererMonQR() {
   const box = document.getElementById("qrBox");
   const statusDiv = document.getElementById("status");
   box.innerHTML = "";
 
-  if(!currentCode || !currentNom) {
-    statusDiv.innerHTML = "<span class='error'>❌ Veuillez d'abord charger une invitation valide</span>";
+  if(!isUnlocked || !currentCode || !currentNom) {
+    statusDiv.innerHTML = "<span class='error'>❌ Veuillez d'abord valider votre accès avec le code PIN</span>";
     return;
   }
 
   try {
-    const qrData = `${BASE_URL}?code=${currentCode}`;
+    const qrData = `scanner.html?code=${currentCode}`;
     
     box.innerHTML = "";
     
@@ -343,34 +325,29 @@ function genererMonQR() {
     
     statusDiv.innerHTML = `<span class="success">✅ QR code généré pour ${currentNom} (${currentCode})</span>`;
   } catch(error) {
-    console.error(error);
     statusDiv.innerHTML = "<span class='error'>❌ Erreur lors de la génération du QR code</span>";
   }
 }
 
-// Restaurer la dernière invitation
-window.addEventListener('load', async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const codeFromUrl = urlParams.get('code');
+// Vérifier si déjà débloqué dans cette session
+window.addEventListener('load', () => {
+  const unlockedCode = sessionStorage.getItem('unlockedCode');
+  const unlockedNom = sessionStorage.getItem('unlockedNom');
   
-  if(codeFromUrl) {
-    document.getElementById("matricule").value = codeFromUrl;
-    await chargerInvitation();
-    genererMonQR();
-  } else {
-    const lastCode = localStorage.getItem('lastInviteCode');
-    const lastNom = localStorage.getItem('lastInviteNom');
-    if(lastCode && lastNom && invites[lastCode]) {
-      document.getElementById("matricule").value = lastCode;
-      currentCode = lastCode;
-      currentNom = lastNom;
-      document.getElementById("nomInvite").innerHTML = lastNom;
-      document.getElementById("status").innerHTML = `<span class="success">✅ Bienvenue ${lastNom}</span>`;
-    }
+  if(unlockedCode && unlockedNom){
+    currentCode = unlockedCode;
+    currentNom = unlockedNom;
+    isUnlocked = true;
+    
+    document.getElementById("pinSection").style.display = "none";
+    document.getElementById("invitationContent").style.display = "block";
+    document.getElementById("nomInvite").innerHTML = currentNom;
+    document.getElementById("status").innerHTML = `<span class="success">✅ Session active - Bienvenue ${currentNom}</span>`;
   }
   
-  document.getElementById("matricule").addEventListener("keypress", (e) => {
-    if(e.key === "Enter") chargerInvitation();
+  // Ajouter l'événement Entrée
+  document.getElementById("pinCode").addEventListener("keypress", (e) => {
+    if(e.key === "Enter") verifierAcces();
   });
 });
 </script>
