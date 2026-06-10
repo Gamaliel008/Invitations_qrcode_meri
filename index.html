@@ -65,37 +65,12 @@ h1{
   margin-bottom:10px;
 }
 
-.nom{
-  font-size:18px;
-  font-weight:700;
-  margin:15px 0;
-  padding:10px;
-  border:2px dashed rgba(255,255,255,0.3);
-  border-radius:12px;
-  background:rgba(255,255,255,0.05);
-  min-height:70px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.nom span:first-child{
-  color:#94a3b8;
-}
-
-.nom span:last-child{
-  color:#facc15;
-  font-weight:bold;
-}
-
 input{
   width:100%;
   padding:12px;
   border-radius:10px;
   border:none;
-  margin-top:10px;
+  margin:15px 0 10px 0;
   font-size:14px;
   background:rgba(255,255,255,0.1);
   color:white;
@@ -106,15 +81,33 @@ input::placeholder{
 }
 
 .message{
-  text-align:justify;
-  line-height:1.7;
+  text-align:left;
+  line-height:1.8;
   color:#e2e8f0;
-  font-size:14px;
+  font-size:15px;
   margin:20px 0;
+  background:rgba(255,255,255,0.05);
+  padding:20px;
+  border-radius:16px;
+}
+
+.message p{
+  margin-bottom:12px;
+}
+
+.points{
+  display:inline-block;
+  min-width:150px;
+  border-bottom:2px dashed #facc15;
+  color:#facc15;
+  font-weight:bold;
+  font-size:16px;
+  padding:0 5px;
+  text-align:center;
 }
 
 .info{
-  margin-top:18px;
+  margin-top:10px;
   display:flex;
   flex-direction:column;
   gap:8px;
@@ -195,6 +188,12 @@ hr{
   background:#facc15;
   border-radius:10px;
 }
+
+.cordial{
+  margin-top:15px;
+  font-style:italic;
+  color:#facc15;
+}
 </style>
 </head>
 
@@ -204,23 +203,13 @@ hr{
 
 <h1>🎟️ Système d'Invitation JPC MERI</h1>
 
-<!-- INVITATION OFFICIELLE + CORPS DU MESSAGE -->
+<!-- MESSAGE AVEC LES POINTILLÉS À L'INTÉRIEUR -->
 <div class="message">
-  <strong>📢 INVITATION OFFICIELLE</strong><br><br>
-  La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé
-  vous convie à un moment de rafraîchissement, d'échange de cadeaux et de communion fraternelle.
-</div>
-
-<div class="info">
-  <div class="box">📅 Dimanche 14 Juin 2026</div>
-  <div class="box">📍 Restaurant LACAZZA</div>
-  <div class="box">⏰ 15h00</div>
-</div>
-
-<!-- SECTION AVEC POINTILLÉS POUR LE NOM -->
-<div class="nom">
-  <span>👤 Invité(e) :</span> 
-  <span id="nomInvite">___________</span>
+  <p>Cher(e) révérend pasteur, papa, maman, frère, sœur, <strong class="points" id="nomInvite">___________</strong>,</p>
+  <p>La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé vous convie à prendre part à la fête d'échange des cadeaux et de communion fraternelle ce <strong>Dimanche 14 Juin 2026</strong>.</p>
+  <p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
+  <p>⏰ <strong>Heure :</strong> 15h00</p>
+  <p class="cordial">Cordiale bienvenue ! 🎉</p>
 </div>
 
 <!-- CHAMP MATRICULE -->
@@ -317,7 +306,6 @@ let currentNom = "";
 
 // Fonction pour récupérer un invité depuis Firebase ou fallback
 async function getInviteByCode(code) {
-  // Essayer d'abord avec Firebase si disponible
   if (window.db && window.getDoc && window.doc) {
     try {
       const docRef = window.doc(window.db, "invites", code);
@@ -329,7 +317,6 @@ async function getInviteByCode(code) {
       console.warn("Firebase error, using fallback:", error);
     }
   }
-  // Fallback vers les données locales
   return invitesFallback[code] || null;
 }
 
@@ -355,10 +342,9 @@ async function chargerInvitation() {
     if(nom) {
       currentCode = code;
       currentNom = nom;
-      nomSpan.innerHTML = `${nom}`;
+      nomSpan.innerHTML = nom;
       statusDiv.innerHTML = `<span class="success">✅ Code valide : ${code} - ${nom}</span>`;
       
-      // Optionnel : stocker dans localStorage pour persistance
       localStorage.setItem('lastInviteCode', code);
       localStorage.setItem('lastInviteNom', nom);
     } else {
@@ -390,7 +376,6 @@ function genererMonQR() {
   try {
     const qrData = `${BASE_URL}?code=${currentCode}`;
     
-    // Nettoyer l'ancien QR
     box.innerHTML = "";
     
     new QRCode(box, {
@@ -411,7 +396,6 @@ function genererMonQR() {
 
 // Restaurer la dernière invitation si elle existe
 window.addEventListener('load', async () => {
-  // Vérifier si un code est passé dans l'URL
   const urlParams = new URLSearchParams(window.location.search);
   const codeFromUrl = urlParams.get('code');
   
@@ -420,7 +404,6 @@ window.addEventListener('load', async () => {
     await chargerInvitation();
     genererMonQR();
   } else {
-    // Restaurer depuis localStorage
     const lastCode = localStorage.getItem('lastInviteCode');
     const lastNom = localStorage.getItem('lastInviteNom');
     if(lastCode && lastNom && invitesFallback[lastCode]) {
@@ -432,7 +415,6 @@ window.addEventListener('load', async () => {
     }
   }
   
-  // Ajouter l'événement Entrée sur le champ matricule
   document.getElementById("matricule").addEventListener("keypress", (e) => {
     if(e.key === "Enter") chargerInvitation();
   });
