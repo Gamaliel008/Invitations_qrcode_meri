@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Gestion des Invitations | JPC MERI</title>
+<title>Admin - Remises de Cadeaux 2026 | JPC MERI</title>
 <style>
 *{
   margin:0;
@@ -99,6 +99,11 @@ button.danger{
 
 button.danger:hover{
   background:#dc2626;
+}
+
+button.success{
+  background:#22c55e;
+  color:white;
 }
 
 .pin-card{
@@ -242,11 +247,10 @@ h3{
 <body>
 <div class="container">
 <div class="header">
-<h1>👑 Admin - Gestion des Invitations</h1>
-<div class="subtitle">Système JPC MERI - Contrôle d'accès par code PIN</div>
+<h1>🎁 REMISES DE CADEAUX 2026 🎁</h1>
+<div class="subtitle">👑 Admin - Gestion des invitations</div>
 </div>
 
-<!-- Statistiques -->
 <div class="card">
   <div class="stats">
     <div class="stat-card">
@@ -264,10 +268,9 @@ h3{
   </div>
 </div>
 
-<!-- Génération PIN -->
 <div class="card">
   <h3>🔐 Générer un code PIN (à donner à l'invité)</h3>
-  <input type="text" id="matricule" placeholder="Entrez le matricule (Ex: RC0001)" autocomplete="off">
+  <input type="text" id="matricule" placeholder="Matricule (Ex: INVJPC1)" autocomplete="off">
   <button onclick="genererPIN()">🎲 Générer le code PIN à 4 chiffres</button>
   
   <div id="pinCard" class="pin-card">
@@ -279,17 +282,15 @@ h3{
   <div id="status"></div>
 </div>
 
-<!-- Validation entrée -->
 <div class="card">
   <h3>✅ Valider l'entrée d'un invité</h3>
   <div class="search-box">
-    <input type="text" id="scanCode" placeholder="Entrer le matricule (Ex: RC0001)" autocomplete="off">
-    <button onclick="validerEntree()" style="background:#22c55e; color:white;">✅ Valider entrée</button>
+    <input type="text" id="scanCode" placeholder="Entrer le matricule (Ex: INVJPC1)" autocomplete="off">
+    <button onclick="validerEntree()" class="success">✅ Valider entrée</button>
   </div>
   <div id="scanResult"></div>
 </div>
 
-<!-- Historique des présences -->
 <div class="card">
   <h3>📊 Historique des présences</h3>
   <div class="search-box">
@@ -302,12 +303,89 @@ h3{
 </div>
 
 <script>
-// Données des invités
+// LISTE FINALE DES 79 INVITÉS (INVJPC1 à INVJPC79)
 const invites = {
-"RC0001":"Fr Emmanuel Bondo","RC0002":"Fr Tonny Bwanga","RC0003":"Fr Abel Dianda","RC0004":"Fr Sylas Mutetelenu","RC0005":"Fr Louis Tshimanga","RC0006":"Fr Aimerance Kazal","RC0007":"Sr Jolaine Mwika","RC0008":"Sr Julia yav","RC0009":"Fr Christian Okota","RC0010":"Fr Maurice Kasongo","RC0011":"Sr Allegresse Simbove","RC0012":"Sr Craintha Simbove","RC0013":"Fr Martin Fine","RC0014":"Sr Jireh Topele","RC0015":"Fr Blaise Lwashi","RC0016":"Fr Alex Nawej","RC0017":"Maman Lydia Mukonda","RC0018":"Fr Lumière Mbuyi","RC0019":"Fr Roméo Lufungula","RC0020":"Fr Marc Kyabo","RC0021":"Fr Héritier Sangwa","RC0022":"Fr Jonathan Kabunda","RC0023":"Fr Ariel Kiyonge","RC0024":"Fr Donatien Kabala","RC0025":"Fr Sylvain Kumena","RC0026":"Sr Gloria Mbindi","RC0027":"Fr Misaël Meshack","RC0028":"Fr Esaïe Kabunda","RC0029":"Fr Tresor Ntambwe","RC0030":"Fr Gamaliel Kalambo","RC0031":"Sr Sephora Yumba","RC0032":"Sr Arisia Yumba","RC0033":"Sr Julia Mbala","RC0034":"Sr Elisa Nzweba","RC0035":"Sr Rosette Lwaisha","RC0036":"Fr Gamaliel Muland","RC0037":"Sr Myriam Kalenga","RC0038":"Fr Jérémie Yumba","RC0039":"Fr Grace Alphonse","RC0040":"Sr Anne Kabwe","RC0041":"Fr Gad Mukalay","RC0042":"Sr L'or Kabwit","RC0043":"Sr Viviane Nduwa","RC0044":"Sr Rebecca Itwamba","RC0045":"Sr Alice Furah","RC0046":"Sr Acacia Percide Margueritte","RC0047":"Sr Marie Kasongo","RC0048":"Sr Gloire Watshika","RC0049":"Fr Guy Kalala","RC0050":"Fr David Sangwa","RC0051":"Fr Josué Musans","RC0052":"Sr Abigaël Mulunda","RC0053":"Fr Josué Kabange","RC0054":"Sr Clémence Mujinga","RC0055":"Sr Esther Ngalula","RC0056":"Fr Christian Kambendja","RC0057":"Fr David Iledephose","RC0058":"Fr Claude Botamali","RC0059":"Sr Christine","RC0060":"Sr Adassa","RC0061":"Fr Victoire Kyungu","RC0062":"Sr Sarah Mayeta","RC0063":"Fr Samuel Ngoy","RC0064":"Fr Crinovic Simbove","RC0065":"Fr Yann Kabuya","RC0066":"Sr Melissa","RC0067":"Fr Ephraïm"
+"INVJPC1":"Fr Emmanuel Bondo",
+"INVJPC2":"Fr Tonny Bwanga",
+"INVJPC3":"Fr Abel Dianda",
+"INVJPC4":"Fr Sylas Mutetelenu",
+"INVJPC5":"Fr Louis Tshimanga",
+"INVJPC6":"Fr Aimerance Kazal",
+"INVJPC7":"Sr Jolaine Mwika",
+"INVJPC8":"Sr Julia yav",
+"INVJPC9":"Fr Christian Okota",
+"INVJPC10":"Fr Maurice Kasongo",
+"INVJPC11":"Sr Allegresse Simbove",
+"INVJPC12":"Sr Craintha Simbove",
+"INVJPC13":"Fr Martin Fine",
+"INVJPC14":"Sr Jireh Topele",
+"INVJPC15":"Fr Blaise Lwashi",
+"INVJPC16":"Fr Alex Nawej",
+"INVJPC17":"Maman Lydia Mukonda",
+"INVJPC18":"Fr Lumière Mbuyi",
+"INVJPC19":"Fr Roméo Lufungula",
+"INVJPC20":"Fr Marc Kyabo",
+"INVJPC21":"Fr Héritier Sangwa",
+"INVJPC22":"Fr Jonathan Kabunda",
+"INVJPC23":"Fr Ariel Kiyonge",
+"INVJPC24":"Fr Donatien Kabala",
+"INVJPC25":"Fr Sylvain Kumena",
+"INVJPC26":"Sr Gloria Mbindi",
+"INVJPC27":"Fr Misaël Meshack",
+"INVJPC28":"Fr Esaïe Kabunda",
+"INVJPC29":"Fr Tresor Ntambwe",
+"INVJPC30":"Fr Gamaliel Kalambo",
+"INVJPC31":"Sr Sephora Yumba",
+"INVJPC32":"Sr Arisia Yumba",
+"INVJPC33":"Sr Julia Mbala",
+"INVJPC34":"Sr Elisa Nzweba",
+"INVJPC35":"Sr Rosette Lwaisha",
+"INVJPC36":"Fr Gamaliel Muland",
+"INVJPC37":"Sr Myriam Kalenga",
+"INVJPC38":"Fr Jérémie Yumba",
+"INVJPC39":"Fr Grace Alphonse",
+"INVJPC40":"Sr Anne Kabwe",
+"INVJPC41":"Fr Gad Mukalay",
+"INVJPC42":"Sr L'or Kabwit",
+"INVJPC43":"Sr Viviane Nduwa",
+"INVJPC44":"Sr Rebecca Itwamba",
+"INVJPC45":"Sr Alice Furah",
+"INVJPC46":"Sr Acacia Percide Margueritte",
+"INVJPC47":"Sr Marie Kasongo",
+"INVJPC48":"Sr Gloire Watshika",
+"INVJPC49":"Fr Guy Kalala",
+"INVJPC50":"Fr David Sangwa",
+"INVJPC51":"Fr Josué Musans",
+"INVJPC52":"Sr Abigaël Mulunda",
+"INVJPC53":"Fr Josué Kabange",
+"INVJPC54":"Sr Clémence Mujinga",
+"INVJPC55":"Sr Esther Ngalula",
+"INVJPC56":"Fr Christian Kambendja",
+"INVJPC57":"Fr David Iledephose",
+"INVJPC58":"Fr Claude Botamali",
+"INVJPC59":"Sr Christine",
+"INVJPC60":"Sr Adassa",
+"INVJPC61":"Fr Victoire Kyungu",
+"INVJPC62":"Sr Sarah Mayeta",
+"INVJPC63":"Fr Samuel Ngoy",
+"INVJPC64":"Fr Crinovic Simbove",
+"INVJPC65":"Fr Yann Kabuya",
+"INVJPC66":"Sr Melissa",
+"INVJPC67":"Fr Ephraïm",
+"INVJPC68":"Fr Rubin",
+"INVJPC69":"Fr John",
+"INVJPC70":"Fr Manassé",
+"INVJPC71":"Fr Espoir",
+"INVJPC72":"Fr Matthew",
+"INVJPC73":"Fr Joseph",
+"INVJPC74":"Fr Parfait",
+"INVJPC75":"Sr Augustine",
+"INVJPC76":"Sr Syntiche",
+"INVJPC77":"Sr Jenovic",
+"INVJPC78":"Fr Bonheur Wa Tshimbu",
+"INVJPC79":"Sr Mariam"
 };
 
-// Stockage
 let pins = JSON.parse(localStorage.getItem('invitationPins') || '{}');
 let presences = JSON.parse(localStorage.getItem('presences') || '{}');
 
@@ -338,14 +416,12 @@ function genererPIN() {
     return;
   }
   
-  // Vérifier si déjà présent dans la salle
   if(presences[code]){
     statusDiv.innerHTML = `<span class='error'>❌ ${nom} est déjà dans la salle ! Impossible de générer un nouveau PIN.</span>`;
     pinCard.style.display = "none";
     return;
   }
   
-  // Générer PIN à 4 chiffres
   const pin = Math.floor(1000 + Math.random() * 9000).toString();
   
   pins[code] = {
@@ -381,25 +457,22 @@ function validerEntree() {
     return;
   }
   
-  // Vérifier si déjà présent
   if(presences[code]){
     const presenceTime = presences[code];
     resultDiv.innerHTML = `<span class='error'>❌ ${nom} est DÉJÀ DANS LA SALLE !<br>Entrée enregistrée à : ${presenceTime}</span>`;
     return;
   }
   
-  // Enregistrer l'entrée
   const now = new Date();
   const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
   const dateStr = now.toLocaleDateString('fr-FR');
   presences[code] = `${dateStr} à ${timeStr}`;
   localStorage.setItem('presences', JSON.stringify(presences));
   
-  resultDiv.innerHTML = `<span class='success'>✅ ENTRÉE VALIDÉE !<br>${nom} (${code})<br>Heure : ${timeStr}</span>`;
+  resultDiv.innerHTML = `<span class='success'>✅ ENTRÉE VALIDÉE !<br>🎁 ${nom} (${code})<br>⏰ Heure : ${timeStr}</span>`;
   document.getElementById("scanCode").value = "";
   mettreAJourStatistiques();
   
-  // Sonnerie de validation
   try {
     const audio = new Audio('data:audio/wav;base64,U3RlYWx0aCBhbmQgdGVzdCBzb3VuZA==');
     audio.play().catch(() => {});
@@ -460,7 +533,7 @@ function exporterHistorique() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `presences_${new Date().toISOString().slice(0,19)}.csv`;
+  a.download = `remises_cadeaux_${new Date().toISOString().slice(0,19)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
