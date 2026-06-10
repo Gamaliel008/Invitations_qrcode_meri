@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Génération PIN | JPC MERI</title>
+<title>Admin - Gestion des Invitations | JPC MERI</title>
 <style>
 *{
   margin:0;
@@ -14,22 +14,19 @@
 
 body{
   min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
   background:linear-gradient(135deg,#0b1220,#1e293b);
   color:white;
   padding:15px;
 }
 
 .container{
-  width:100%;
-  max-width:600px;
-  background:rgba(255,255,255,0.07);
-  backdrop-filter:blur(16px);
-  border-radius:20px;
-  padding:25px;
+  max-width:800px;
+  margin:0 auto;
+}
+
+.header{
   text-align:center;
+  margin-bottom:25px;
 }
 
 h1{
@@ -41,7 +38,14 @@ h1{
 .subtitle{
   font-size:14px;
   opacity:0.8;
-  margin-bottom:25px;
+}
+
+.card{
+  background:rgba(255,255,255,0.07);
+  backdrop-filter:blur(16px);
+  border-radius:20px;
+  padding:22px;
+  margin-bottom:20px;
 }
 
 input{
@@ -88,6 +92,15 @@ button.secondary:hover{
   background:#2563eb;
 }
 
+button.danger{
+  background:#ef4444;
+  color:white;
+}
+
+button.danger:hover{
+  background:#dc2626;
+}
+
 .pin-card{
   background:linear-gradient(135deg,#1e293b,#0f172a);
   border-radius:16px;
@@ -117,134 +130,195 @@ button.secondary:hover{
 .error{ color:#f87171; background:rgba(248,113,113,0.1); }
 .info{ color:#facc15; background:rgba(250,204,21,0.1); }
 
-.pins-list{
-  margin-top:20px;
+.history-list{
+  margin-top:15px;
   max-height:300px;
   overflow-y:auto;
-  text-align:left;
 }
 
-.pin-item{
+.history-item{
   background:rgba(255,255,255,0.05);
-  padding:10px;
-  margin:5px 0;
-  border-radius:8px;
+  padding:12px;
+  margin:8px 0;
+  border-radius:10px;
   display:flex;
   justify-content:space-between;
-  font-size:14px;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
-.pin-item span:first-child{ color:#facc15; font-weight:bold; }
-.pin-item span:last-child{ font-family:monospace; font-size:18px; }
+.history-item.present{
+  border-left:4px solid #22c55e;
+}
+
+.history-item.absent{
+  border-left:4px solid #ef4444;
+}
+
+.history-nom{
+  font-weight:bold;
+  color:#facc15;
+}
+
+.history-code{
+  font-family:monospace;
+  font-size:12px;
+  opacity:0.7;
+}
+
+.history-time{
+  font-size:11px;
+  opacity:0.6;
+}
+
+.history-status{
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:20px;
+}
+
+.status-present{
+  background:rgba(34,197,94,0.2);
+  color:#86efac;
+}
+
+.status-absent{
+  background:rgba(248,113,113,0.2);
+  color:#f87171;
+}
+
+.stats{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
+  gap:10px;
+}
+
+.stat-card{
+  background:rgba(255,255,255,0.05);
+  padding:10px;
+  border-radius:12px;
+  text-align:center;
+  flex:1;
+}
+
+.stat-number{
+  font-size:28px;
+  font-weight:bold;
+  color:#facc15;
+}
+
+.stat-label{
+  font-size:11px;
+  opacity:0.7;
+}
 
 h3{
-  margin:15px 0 10px 0;
   color:#facc15;
   font-size:18px;
+  margin:15px 0 10px 0;
+}
+
+.search-box{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.search-box input{
+  margin-bottom:0;
+  flex:1;
+}
+
+.search-box button{
+  width:auto;
+  padding:14px 20px;
+  margin-bottom:0;
 }
 </style>
 </head>
 
 <body>
 <div class="container">
-<h1>🔐 Admin - Générateur de Codes PIN</h1>
-<div class="subtitle">Système d'invitation JPC MERI</div>
-
-<input type="text" id="matricule" placeholder="Entrez le matricule (Ex: RC0001)" autocomplete="off">
-<button onclick="genererPIN()">🎲 Générer le code PIN à 4 chiffres</button>
-
-<div id="pinCard" class="pin-card">
-  <div>📋 Code PIN pour :</div>
-  <div id="pinNom" style="font-weight:bold; margin:5px 0"></div>
-  <div class="pin-code" id="pinCode">----</div>
-  <div>⚠️ À communiquer UNIQUEMENT à l'invité</div>
+<div class="header">
+<h1>👑 Admin - Gestion des Invitations</h1>
+<div class="subtitle">Système JPC MERI - Contrôle d'accès par code PIN</div>
 </div>
 
-<div id="status"></div>
+<!-- Statistiques -->
+<div class="card">
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-number" id="totalInvites">0</div>
+      <div class="stat-label">Total invités</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="presentCount">0</div>
+      <div class="stat-label">Présents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="absentCount">0</div>
+      <div class="stat-label">Absents</div>
+    </div>
+  </div>
+</div>
 
-<hr style="margin:20px 0; opacity:0.2;">
+<!-- Génération PIN -->
+<div class="card">
+  <h3>🔐 Générer un code PIN (à donner à l'invité)</h3>
+  <input type="text" id="matricule" placeholder="Entrez le matricule (Ex: RC0001)" autocomplete="off">
+  <button onclick="genererPIN()">🎲 Générer le code PIN à 4 chiffres</button>
+  
+  <div id="pinCard" class="pin-card">
+    <div>📋 Code PIN à communiquer à :</div>
+    <div id="pinNom" style="font-weight:bold; margin:5px 0"></div>
+    <div class="pin-code" id="pinCode">----</div>
+    <div>⚠️ Usage unique - L'invité devra entrer ce code sur sa page</div>
+  </div>
+  <div id="status"></div>
+</div>
 
-<h3>📋 Codes PIN générés</h3>
-<button class="secondary" onclick="afficherTousLesPIN()">🔄 Afficher tous les codes PIN</button>
-<div id="pinsList" class="pins-list"></div>
+<!-- Validation entrée -->
+<div class="card">
+  <h3>✅ Valider l'entrée d'un invité</h3>
+  <div class="search-box">
+    <input type="text" id="scanCode" placeholder="Entrer le matricule (Ex: RC0001)" autocomplete="off">
+    <button onclick="validerEntree()" style="background:#22c55e; color:white;">✅ Valider entrée</button>
+  </div>
+  <div id="scanResult"></div>
+</div>
 
-<button onclick="resetAllPIN()" style="background:#ef4444; color:white; margin-top:15px;">🗑️ Réinitialiser tous les codes</button>
+<!-- Historique des présences -->
+<div class="card">
+  <h3>📊 Historique des présences</h3>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Rechercher un invité..." onkeyup="filtrerHistorique()">
+    <button class="secondary" onclick="exporterHistorique()">📎 Exporter CSV</button>
+  </div>
+  <div id="historyList" class="history-list"></div>
+  <button class="secondary" onclick="resetAllPIN()" style="margin-top:10px;">🔄 Réinitialiser tous les accès (après événement)</button>
+</div>
 </div>
 
 <script>
 // Données des invités
 const invites = {
-"RC0001":"Fr Emmanuel Bondo",
-"RC0002":"Fr Tonny Bwanga",
-"RC0003":"Fr Abel Dianda",
-"RC0004":"Fr Sylas Mutetelenu",
-"RC0005":"Fr Louis Tshimanga",
-"RC0006":"Fr Aimerance Kazal",
-"RC0007":"Sr Jolaine Mwika",
-"RC0008":"Sr Julia yav",
-"RC0009":"Fr Christian Okota",
-"RC0010":"Fr Maurice Kasongo",
-"RC0011":"Sr Allegresse Simbove",
-"RC0012":"Sr Craintha Simbove",
-"RC0013":"Fr Martin Fine",
-"RC0014":"Sr Jireh Topele",
-"RC0015":"Fr Blaise Lwashi",
-"RC0016":"Fr Alex Nawej",
-"RC0017":"Maman Lydia Mukonda",
-"RC0018":"Fr Lumière Mbuyi",
-"RC0019":"Fr Roméo Lufungula",
-"RC0020":"Fr Marc Kyabo",
-"RC0021":"Fr Héritier Sangwa",
-"RC0022":"Fr Jonathan Kabunda",
-"RC0023":"Fr Ariel Kiyonge",
-"RC0024":"Fr Donatien Kabala",
-"RC0025":"Fr Sylvain Kumena",
-"RC0026":"Sr Gloria Mbindi",
-"RC0027":"Fr Misaël Meshack",
-"RC0028":"Fr Esaïe Kabunda",
-"RC0029":"Fr Tresor Ntambwe",
-"RC0030":"Fr Gamaliel Kalambo",
-"RC0031":"Sr Sephora Yumba",
-"RC0032":"Sr Arisia Yumba",
-"RC0033":"Sr Julia Mbala",
-"RC0034":"Sr Elisa Nzweba",
-"RC0035":"Sr Rosette Lwaisha",
-"RC0036":"Fr Gamaliel Muland",
-"RC0037":"Sr Myriam Kalenga",
-"RC0038":"Fr Jérémie Yumba",
-"RC0039":"Fr Grace Alphonse",
-"RC0040":"Sr Anne Kabwe",
-"RC0041":"Fr Gad Mukalay",
-"RC0042":"Sr L'or Kabwit",
-"RC0043":"Sr Viviane Nduwa",
-"RC0044":"Sr Rebecca Itwamba",
-"RC0045":"Sr Alice Furah",
-"RC0046":"Sr Acacia Percide Margueritte",
-"RC0047":"Sr Marie Kasongo",
-"RC0048":"Sr Gloire Watshika",
-"RC0049":"Fr Guy Kalala",
-"RC0050":"Fr David Sangwa",
-"RC0051":"Fr Josué Musans",
-"RC0052":"Sr Abigaël Mulunda",
-"RC0053":"Fr Josué Kabange",
-"RC0054":"Sr Clémence Mujinga",
-"RC0055":"Sr Esther Ngalula",
-"RC0056":"Fr Christian Kambendja",
-"RC0057":"Fr David Iledephose",
-"RC0058":"Fr Claude Botamali",
-"RC0059":"Sr Christine",
-"RC0060":"Sr Adassa",
-"RC0061":"Fr Victoire Kyungu",
-"RC0062":"Sr Sarah Mayeta",
-"RC0063":"Fr Samuel Ngoy",
-"RC0064":"Fr Crinovic Simbove",
-"RC0065":"Fr Yann Kabuya",
-"RC0066":"Sr Melissa",
-"RC0067":"Fr Ephraïm"
+"RC0001":"Fr Emmanuel Bondo","RC0002":"Fr Tonny Bwanga","RC0003":"Fr Abel Dianda","RC0004":"Fr Sylas Mutetelenu","RC0005":"Fr Louis Tshimanga","RC0006":"Fr Aimerance Kazal","RC0007":"Sr Jolaine Mwika","RC0008":"Sr Julia yav","RC0009":"Fr Christian Okota","RC0010":"Fr Maurice Kasongo","RC0011":"Sr Allegresse Simbove","RC0012":"Sr Craintha Simbove","RC0013":"Fr Martin Fine","RC0014":"Sr Jireh Topele","RC0015":"Fr Blaise Lwashi","RC0016":"Fr Alex Nawej","RC0017":"Maman Lydia Mukonda","RC0018":"Fr Lumière Mbuyi","RC0019":"Fr Roméo Lufungula","RC0020":"Fr Marc Kyabo","RC0021":"Fr Héritier Sangwa","RC0022":"Fr Jonathan Kabunda","RC0023":"Fr Ariel Kiyonge","RC0024":"Fr Donatien Kabala","RC0025":"Fr Sylvain Kumena","RC0026":"Sr Gloria Mbindi","RC0027":"Fr Misaël Meshack","RC0028":"Fr Esaïe Kabunda","RC0029":"Fr Tresor Ntambwe","RC0030":"Fr Gamaliel Kalambo","RC0031":"Sr Sephora Yumba","RC0032":"Sr Arisia Yumba","RC0033":"Sr Julia Mbala","RC0034":"Sr Elisa Nzweba","RC0035":"Sr Rosette Lwaisha","RC0036":"Fr Gamaliel Muland","RC0037":"Sr Myriam Kalenga","RC0038":"Fr Jérémie Yumba","RC0039":"Fr Grace Alphonse","RC0040":"Sr Anne Kabwe","RC0041":"Fr Gad Mukalay","RC0042":"Sr L'or Kabwit","RC0043":"Sr Viviane Nduwa","RC0044":"Sr Rebecca Itwamba","RC0045":"Sr Alice Furah","RC0046":"Sr Acacia Percide Margueritte","RC0047":"Sr Marie Kasongo","RC0048":"Sr Gloire Watshika","RC0049":"Fr Guy Kalala","RC0050":"Fr David Sangwa","RC0051":"Fr Josué Musans","RC0052":"Sr Abigaël Mulunda","RC0053":"Fr Josué Kabange","RC0054":"Sr Clémence Mujinga","RC0055":"Sr Esther Ngalula","RC0056":"Fr Christian Kambendja","RC0057":"Fr David Iledephose","RC0058":"Fr Claude Botamali","RC0059":"Sr Christine","RC0060":"Sr Adassa","RC0061":"Fr Victoire Kyungu","RC0062":"Sr Sarah Mayeta","RC0063":"Fr Samuel Ngoy","RC0064":"Fr Crinovic Simbove","RC0065":"Fr Yann Kabuya","RC0066":"Sr Melissa","RC0067":"Fr Ephraïm"
 };
 
-// Stockage des PINs
+// Stockage
 let pins = JSON.parse(localStorage.getItem('invitationPins') || '{}');
+let presences = JSON.parse(localStorage.getItem('presences') || '{}');
+
+function mettreAJourStatistiques() {
+  const total = Object.keys(invites).length;
+  const presents = Object.keys(presences).length;
+  document.getElementById("totalInvites").innerText = total;
+  document.getElementById("presentCount").innerText = presents;
+  document.getElementById("absentCount").innerText = total - presents;
+  afficherHistorique();
+}
 
 function genererPIN() {
   const code = document.getElementById("matricule").value.trim().toUpperCase();
@@ -264,10 +338,16 @@ function genererPIN() {
     return;
   }
   
-  // Générer un code PIN à 4 chiffres aléatoire
+  // Vérifier si déjà présent dans la salle
+  if(presences[code]){
+    statusDiv.innerHTML = `<span class='error'>❌ ${nom} est déjà dans la salle ! Impossible de générer un nouveau PIN.</span>`;
+    pinCard.style.display = "none";
+    return;
+  }
+  
+  // Générer PIN à 4 chiffres
   const pin = Math.floor(1000 + Math.random() * 9000).toString();
   
-  // Stocker le PIN
   pins[code] = {
     pin: pin,
     nom: nom,
@@ -276,45 +356,134 @@ function genererPIN() {
   };
   localStorage.setItem('invitationPins', JSON.stringify(pins));
   
-  // Afficher le PIN
   document.getElementById("pinNom").innerHTML = `${nom} (${code})`;
   document.getElementById("pinCode").innerHTML = pin;
   pinCard.style.display = "block";
-  statusDiv.innerHTML = `<span class='success'>✅ PIN généré avec succès ! À communiquer à ${nom}</span>`;
+  statusDiv.innerHTML = `<span class='success'>✅ PIN généré ! À communiquer à ${nom}</span>`;
   
-  afficherTousLesPIN();
+  setTimeout(() => {
+    pinCard.style.display = "none";
+  }, 10000);
 }
 
-function afficherTousLesPIN() {
-  const container = document.getElementById("pinsList");
-  const codes = Object.keys(pins);
+function validerEntree() {
+  const code = document.getElementById("scanCode").value.trim().toUpperCase();
+  const resultDiv = document.getElementById("scanResult");
   
-  if(codes.length === 0){
-    container.innerHTML = "<div style='text-align:center;opacity:0.7;padding:10px;'>Aucun code PIN généré</div>";
+  if(!code){
+    resultDiv.innerHTML = "<span class='error'>❌ Veuillez entrer un matricule</span>";
     return;
   }
   
-  container.innerHTML = codes.map(code => `
-    <div class="pin-item">
-      <span>${pins[code].nom} (${code})</span>
-      <span style="color:#facc15;font-family:monospace">PIN: ${pins[code].pin}</span>
-      <span style="font-size:11px;opacity:0.7">${pins[code].utilise ? '✅ Utilisé' : '⏳ En attente'}</span>
-    </div>
-  `).join('');
+  const nom = invites[code];
+  if(!nom){
+    resultDiv.innerHTML = `<span class='error'>❌ Matricule invalide : ${code}</span>`;
+    return;
+  }
+  
+  // Vérifier si déjà présent
+  if(presences[code]){
+    const presenceTime = presences[code];
+    resultDiv.innerHTML = `<span class='error'>❌ ${nom} est DÉJÀ DANS LA SALLE !<br>Entrée enregistrée à : ${presenceTime}</span>`;
+    return;
+  }
+  
+  // Enregistrer l'entrée
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+  const dateStr = now.toLocaleDateString('fr-FR');
+  presences[code] = `${dateStr} à ${timeStr}`;
+  localStorage.setItem('presences', JSON.stringify(presences));
+  
+  resultDiv.innerHTML = `<span class='success'>✅ ENTRÉE VALIDÉE !<br>${nom} (${code})<br>Heure : ${timeStr}</span>`;
+  document.getElementById("scanCode").value = "";
+  mettreAJourStatistiques();
+  
+  // Sonnerie de validation
+  try {
+    const audio = new Audio('data:audio/wav;base64,U3RlYWx0aCBhbmQgdGVzdCBzb3VuZA==');
+    audio.play().catch(() => {});
+  } catch(e) {}
+}
+
+function afficherHistorique() {
+  const container = document.getElementById("historyList");
+  const codes = Object.keys(invites);
+  const searchTerm = document.getElementById("searchInput")?.value.toLowerCase() || "";
+  
+  const filtered = codes.filter(code => {
+    const nom = invites[code];
+    return nom.toLowerCase().includes(searchTerm) || code.toLowerCase().includes(searchTerm);
+  });
+  
+  container.innerHTML = filtered.map(code => {
+    const nom = invites[code];
+    const estPresent = presences[code];
+    const pinInfo = pins[code];
+    
+    return `
+      <div class="history-item ${estPresent ? 'present' : 'absent'}">
+        <div>
+          <div class="history-nom">${nom}</div>
+          <div class="history-code">${code}</div>
+          ${pinInfo ? `<div class="history-time">PIN: ${pinInfo.pin}</div>` : ''}
+        </div>
+        <div>
+          ${estPresent ? 
+            `<div class="history-status status-present">✅ Présent depuis ${estPresent}</div>` : 
+            `<div class="history-status status-absent">⏳ Non entré</div>`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filtrerHistorique() {
+  afficherHistorique();
+}
+
+function exporterHistorique() {
+  let csv = "Matricule,Nom,Présent,Heure d'entrée,PIN généré,Statut PIN\n";
+  const codes = Object.keys(invites);
+  
+  codes.forEach(code => {
+    const nom = invites[code];
+    const estPresent = presences[code] ? "OUI" : "NON";
+    const heure = presences[code] || "";
+    const pin = pins[code] ? pins[code].pin : "";
+    const pinUtilise = pins[code] ? (pins[code].utilise ? "Utilisé" : "Non utilisé") : "Non généré";
+    csv += `"${code}","${nom}","${estPresent}","${heure}","${pin}","${pinUtilise}"\n`;
+  });
+  
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `presences_${new Date().toISOString().slice(0,19)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function resetAllPIN() {
-  if(confirm("⚠️ ATTENTION : Cela supprimera TOUS les codes PIN générés. Continuer ?")){
+  if(confirm("⚠️ RÉINITIALISATION TOTALE !\n\nCela va :\n- Supprimer TOUS les codes PIN\n- Effacer TOUTES les présences\n- Remettre à zéro la salle\n\nContinuer ?")){
     pins = {};
+    presences = {};
     localStorage.removeItem('invitationPins');
-    document.getElementById("pinsList").innerHTML = "";
+    localStorage.removeItem('presences');
     document.getElementById("pinCard").style.display = "none";
-    document.getElementById("status").innerHTML = "<span class='info'>🗑️ Tous les codes PIN ont été réinitialisés</span>";
+    document.getElementById("status").innerHTML = "<span class='info'>✅ Système réinitialisé !</span>";
+    document.getElementById("scanResult").innerHTML = "";
+    mettreAJourStatistiques();
   }
 }
 
 window.addEventListener('load', () => {
-  afficherTousLesPIN();
+  mettreAJourStatistiques();
+  
+  document.getElementById("scanCode").addEventListener("keypress", (e) => {
+    if(e.key === "Enter") validerEntree();
+  });
 });
 </script>
 </body>
