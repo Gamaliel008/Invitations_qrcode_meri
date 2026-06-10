@@ -6,35 +6,8 @@
 
 <title>Scanner QR - Invitation JPC MERI</title>
 
+<!-- HTML5 QR Code Library -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
-<!-- Firebase SDKs -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-  
-  const firebaseConfig = {
-    apiKey: "AIzaSyA1k-kGz178KNhuEhJ5QPWqs5AXrOvB5bI",
-    authDomain: "invitations-qrcode.firebaseapp.com",
-    projectId: "invitations-qrcode",
-    storageBucket: "invitations-qrcode.firebasestorage.app",
-    messagingSenderId: "716513403852",
-    appId: "1:716513403852:web:846355b629e612e8477369"
-  };
-  
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  
-  // Rendre disponibles les fonctions Firebase globalement
-  window.db = db;
-  window.doc = doc;
-  window.getDoc = getDoc;
-  window.updateDoc = updateDoc;
-  window.increment = increment;
-  window.collection = collection;
-  window.addDoc = addDoc;
-  window.serverTimestamp = serverTimestamp;
-</script>
 
 <style>
 *{
@@ -119,20 +92,6 @@ button.danger:hover{
   background:#dc2626;
 }
 
-button.secondary{
-  background:#3b82f6;
-}
-
-button.secondary:hover{
-  background:#2563eb;
-}
-
-button:disabled{
-  opacity:0.5;
-  cursor:not-allowed;
-  transform:none;
-}
-
 #reader{
   margin-top:15px;
   display:none;
@@ -176,15 +135,6 @@ button:disabled{
   border-top:1px solid rgba(255,255,255,0.1);
 }
 
-.card .badge{
-  display:inline-block;
-  background:rgba(34,197,94,0.2);
-  padding:5px 12px;
-  border-radius:20px;
-  font-size:12px;
-  margin-top:10px;
-}
-
 #status{
   margin-top:15px;
   font-size:14px;
@@ -209,23 +159,9 @@ button:disabled{
   display:inline-block;
 }
 
-.warning{
-  color:#facc15;
-  background:rgba(250,204,21,0.1);
-  padding:8px;
-  border-radius:8px;
-  display:inline-block;
-}
-
 @keyframes fade{
   from{opacity:0; transform:translateY(10px);}
   to{opacity:1; transform:translateY(0);}
-}
-
-.scan-stats{
-  font-size:12px;
-  margin-top:10px;
-  opacity:0.7;
 }
 
 #notification{
@@ -254,48 +190,6 @@ button:disabled{
     opacity:1;
     transform:translateX(-50%) translateY(0);
   }
-}
-
-.scan-history{
-  margin-top:20px;
-  max-height:200px;
-  overflow-y:auto;
-  background:rgba(0,0,0,0.3);
-  border-radius:12px;
-  padding:10px;
-  display:none;
-}
-
-.scan-history h4{
-  color:#facc15;
-  margin-bottom:10px;
-  font-size:14px;
-}
-
-.scan-history-item{
-  font-size:12px;
-  padding:8px;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.scan-history-item:last-child{
-  border-bottom:none;
-}
-
-.scan-time{
-  opacity:0.7;
-  font-size:10px;
-}
-
-.toggle-history{
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.2);
-  padding:8px;
-  font-size:12px;
-  margin-top:10px;
 }
 
 .loading{
@@ -340,20 +234,13 @@ button:disabled{
 <h3 id="guestName">Invité</h3>
 <p style="margin-top:10px; font-size:14px; line-height:1.6;">
 La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé
-vous convie à un moment de rafraîchissement, d'échange de cadeaux et de communion fraternelle.
+vous convie à prendre part à la fête d'échange des cadeaux et de communion fraternelle.
 </p>
 <div class="details">
 <p>📅 Dimanche 14 Juin 2026</p>
 <p>📍 Restaurant LACAZZA</p>
 <p>⏰ 15h00</p>
-<div id="scanCount" class="badge"></div>
 </div>
-</div>
-
-<button class="toggle-history secondary" onclick="toggleHistory()" style="display:none" id="toggleHistoryBtn">📜 Voir historique des scans</button>
-<div id="scanHistory" class="scan-history">
-<h4>📋 Historique des scans du jour</h4>
-<div id="historyList"></div>
 </div>
 
 </div>
@@ -362,8 +249,8 @@ vous convie à un moment de rafraîchissement, d'échange de cadeaux et de commu
 
 <script>
 
-// Données des invités (fallback)
-const invitesFallback = {
+// Données des invités
+const invites = {
 "RC0001":"Fr Emmanuel Bondo",
 "RC0002":"Fr Tonny Bwanga",
 "RC0003":"Fr Abel Dianda",
@@ -436,71 +323,6 @@ const invitesFallback = {
 let html5QrCode;
 let isScanning = false;
 let scanTimeout;
-let scannedToday = JSON.parse(localStorage.getItem('scannedToday') || '[]');
-let todayDate = new Date().toDateString();
-
-// Nettoyer l'historique si changement de jour
-function cleanHistoryIfNewDay(){
-  const lastDate = localStorage.getItem('lastScanDate');
-  if(lastDate !== todayDate){
-    scannedToday = [];
-    localStorage.setItem('scannedToday', JSON.stringify(scannedToday));
-    localStorage.setItem('lastScanDate', todayDate);
-    updateHistoryDisplay();
-  }
-}
-
-// Mettre à jour l'affichage de l'historique
-function updateHistoryDisplay(){
-  const historyDiv = document.getElementById('historyList');
-  if(historyDiv){
-    if(scannedToday.length === 0){
-      historyDiv.innerHTML = '<div style="text-align:center;opacity:0.7;padding:10px;">Aucun scan aujourd\'hui</div>';
-    } else {
-      historyDiv.innerHTML = scannedToday.map(item => `
-        <div class="scan-history-item">
-          <span>${item.nom} (${item.code})</span>
-          <span class="scan-time">${item.time}</span>
-        </div>
-      `).join('');
-    }
-  }
-}
-
-// Ajouter à l'historique
-function addToHistory(code, nom){
-  const now = new Date();
-  const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-  
-  scannedToday.unshift({ code, nom, time: timeStr });
-  
-  // Garder seulement les 20 derniers
-  if(scannedToday.length > 20) scannedToday.pop();
-  
-  localStorage.setItem('scannedToday', JSON.stringify(scannedToday));
-  updateHistoryDisplay();
-  
-  // Afficher le bouton d'historique s'il y a des scans
-  const toggleBtn = document.getElementById('toggleHistoryBtn');
-  if(toggleBtn && scannedToday.length > 0){
-    toggleBtn.style.display = 'block';
-  }
-}
-
-// Basculer l'affichage de l'historique
-function toggleHistory(){
-  const historyDiv = document.getElementById('scanHistory');
-  const toggleBtn = document.getElementById('toggleHistoryBtn');
-  if(historyDiv.style.display === 'none' || !historyDiv.style.display){
-    historyDiv.style.display = 'block';
-    toggleBtn.textContent = '🙈 Cacher l\'historique';
-  } else {
-    historyDiv.style.display = 'none';
-    toggleBtn.textContent = '📜 Voir historique des scans';
-  }
-}
-
-window.toggleHistory = toggleHistory;
 
 // Afficher une notification
 function showNotification(message, isError = false){
@@ -515,53 +337,77 @@ function showNotification(message, isError = false){
   }, 3000);
 }
 
-// Récupérer les infos d'un invité (Firebase ou fallback)
-async function getInviteInfo(code){
-  if(window.db && window.doc && window.getDoc){
-    try{
-      const docRef = window.doc(window.db, "invites", code);
-      const docSnap = await window.getDoc(docRef);
-      if(docSnap.exists()){
-        const data = docSnap.data();
-        return {
-          nom: data.nom || data.name,
-          scanCount: data.scanCount || 0
-        };
-      }
-    } catch(error){
-      console.warn("Firebase error, using fallback:", error);
-    }
+// Extraire le code du QR
+function extractCode(text){
+  if(!text) return null;
+  
+  text = text.trim();
+  
+  // Chercher le paramètre code= dans l'URL
+  const codeMatch = text.match(/[?&]code=([^&]+)/);
+  if(codeMatch){
+    return codeMatch[1];
   }
   
-  const nom = invitesFallback[code];
-  return nom ? { nom, scanCount: null } : null;
+  // Si le texte correspond directement à un code RCXXXX
+  if(text.match(/^RC00[0-9]{2}$/i)){
+    return text.toUpperCase();
+  }
+  
+  return null;
 }
 
-// Enregistrer le scan dans Firebase
-async function registerScan(code, nom){
-  if(window.db && window.doc && window.updateDoc && window.increment && window.addDoc && window.collection && window.serverTimestamp){
-    try{
-      const docRef = window.doc(window.db, "invites", code);
-      await window.updateDoc(docRef, {
-        scanCount: window.increment(1),
-        lastScanAt: window.serverTimestamp()
-      });
-      
-      // Ajouter une entrée dans l'historique des scans
-      const scansRef = window.collection(window.db, "scans");
-      await window.addDoc(scansRef, {
-        code: code,
-        nom: nom,
-        scannedAt: window.serverTimestamp(),
-        scannedBy: "web-scanner"
-      });
-      
-      return true;
-    } catch(error){
-      console.warn("Firebase update error:", error);
-    }
+// Traitement du scan réussi
+function onScanSuccess(decodedText){
+  // Éviter les scans multiples trop rapides
+  if(scanTimeout) clearTimeout(scanTimeout);
+  
+  const code = extractCode(decodedText);
+  const status = document.getElementById("status");
+  const card = document.getElementById("invitationCard");
+  
+  if(!code){
+    card.style.display = "none";
+    status.innerHTML = `<span class='err'>❌ QR code invalide</span>`;
+    showNotification("❌ QR code invalide", true);
+    return;
   }
-  return false;
+  
+  const nom = invites[code];
+  
+  if(nom){
+    document.getElementById("guestName").innerHTML = `<span style="color:#facc15">${nom}</span>`;
+    card.style.display = "block";
+    status.innerHTML = `<span class="ok">✅ Scan réussi !<br>Code: ${code}<br>Bienvenue ${nom} !</span>`;
+    showNotification(`✅ Bienvenue ${nom} !`, false);
+    
+    // Animation sur la carte
+    card.style.animation = "none";
+    setTimeout(() => {
+      card.style.animation = "fade 0.3s ease-in-out";
+    }, 10);
+    
+    // Arrêter le scan après 3 secondes pour économiser la batterie
+    scanTimeout = setTimeout(() => {
+      if(isScanning){
+        stopScanner();
+      }
+    }, 3000);
+    
+  } else {
+    card.style.display = "none";
+    status.innerHTML = `<span class="err">❌ Code invalide : ${code}<br>Ce code ne correspond à aucune invitation.</span>`;
+    showNotification(`❌ Code invalide: ${code}`, true);
+  }
+}
+
+// Erreur de scan (silencieuse)
+function onScanError(errorMessage){
+  // Ignorer les erreurs normales de scan
+  if(errorMessage && (errorMessage.includes("NotFoundException") || errorMessage.includes("No MultiFormat"))){
+    return;
+  }
+  console.warn("Erreur scan:", errorMessage);
 }
 
 // Démarrer le scanner
@@ -573,6 +419,13 @@ async function startScanner(){
   
   if(isScanning){
     showNotification("Scan déjà en cours", true);
+    return;
+  }
+  
+  // Vérifier que Html5Qrcode est chargé
+  if(typeof Html5Qrcode === 'undefined'){
+    statusDiv.innerHTML = "<span class='err'>❌ La bibliothèque de scan n'est pas chargée. Rafraîchissez la page.</span>";
+    showNotification("Erreur technique, rafraîchissez la page", true);
     return;
   }
   
@@ -633,126 +486,17 @@ async function stopScanner(){
   showNotification("Scan arrêté");
 }
 
-// Extraire le code du QR
-function extractCode(text){
-  if(!text) return null;
-  
-  text = text.trim();
-  
-  // Chercher le paramètre code= dans l'URL
-  const codeMatch = text.match(/[?&]code=([^&]+)/);
-  if(codeMatch){
-    return codeMatch[1];
-  }
-  
-  // Si le texte correspond directement à un code RCXXXX
-  if(text.match(/^RC00[0-9]{2}$/i)){
-    return text.toUpperCase();
-  }
-  
-  return null;
-}
-
-// Traitement du scan réussi
-async function onScanSuccess(decodedText){
-  // Éviter les scans multiples trop rapides
-  if(scanTimeout) clearTimeout(scanTimeout);
-  
-  const code = extractCode(decodedText);
-  const status = document.getElementById("status");
-  const card = document.getElementById("invitationCard");
-  const scanCountSpan = document.getElementById("scanCount");
-  
-  if(!code){
-    card.style.display = "none";
-    status.innerHTML = `<span class='err'>❌ QR code invalide<br>Veuillez scanner un QR code d'invitation valide.</span>`;
-    showNotification("❌ QR code invalide", true);
-    return;
-  }
-  
-  // Afficher un indicateur de chargement
-  status.innerHTML = `<span class="warning"><span class="loading"></span> Vérification du code ${code}...</span>`;
-  
-  const inviteInfo = await getInviteInfo(code);
-  
-  if(inviteInfo && inviteInfo.nom){
-    const nom = inviteInfo.nom;
-    const previousCount = inviteInfo.scanCount;
-    
-    // Enregistrer le scan dans Firebase
-    await registerScan(code, nom);
-    
-    // Ajouter à l'historique local
-    addToHistory(code, nom);
-    
-    document.getElementById("guestName").innerHTML = `<span style="color:#facc15">${nom}</span>`;
-    
-    if(previousCount !== null){
-      scanCountSpan.innerHTML = `📊 ${previousCount + 1}ère ${previousCount + 1 > 1 ? 'présence' : 'présence'} scannée`;
-      scanCountSpan.style.display = 'inline-block';
-    } else {
-      scanCountSpan.style.display = 'none';
-    }
-    
-    card.style.display = "block";
-    status.innerHTML = `<span class="ok">✅ Scan réussi !<br>Code: ${code}<br>Bienvenue ${nom} !</span>`;
-    showNotification(`✅ Bienvenue ${nom} !`, false);
-    
-    // Animation sur la carte
-    card.style.animation = "none";
-    setTimeout(() => {
-      card.style.animation = "fade 0.3s ease-in-out";
-    }, 10);
-    
-    // Arrêter le scan après 3 secondes pour économiser la batterie
-    scanTimeout = setTimeout(() => {
-      if(isScanning){
-        stopScanner();
-      }
-    }, 3000);
-    
-  } else {
-    card.style.display = "none";
-    status.innerHTML = `<span class="err">❌ Code invalide : ${code}<br>Ce code ne correspond à aucune invitation.</span>`;
-    showNotification(`❌ Code invalide: ${code}`, true);
-  }
-}
-
-// Erreur de scan (silencieuse)
-function onScanError(errorMessage){
-  // Ignorer les erreurs normales
-  if(errorMessage && (errorMessage.includes("NotFoundException") || errorMessage.includes("No MultiFormat Readers"))){
-    return;
-  }
-  // Log uniquement les erreurs importantes
-  if(errorMessage && !errorMessage.includes("video")){
-    console.warn("Erreur scan:", errorMessage);
-  }
-}
-
 // Vérifier si un code est passé dans l'URL (depuis un QR)
-window.addEventListener('load', async () => {
-  cleanHistoryIfNewDay();
-  updateHistoryDisplay();
-  
+window.addEventListener('load', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const codeFromUrl = urlParams.get('code');
   
-  if(codeFromUrl){
-    const inviteInfo = await getInviteInfo(codeFromUrl);
-    if(inviteInfo && inviteInfo.nom){
-      document.getElementById("invitationCard").style.display = "block";
-      document.getElementById("guestName").innerHTML = `<span style="color:#facc15">${inviteInfo.nom}</span>`;
-      document.getElementById("status").innerHTML = `<span class="ok">✅ Invitation chargée depuis le QR code !<br>Code: ${codeFromUrl}<br>Bienvenue ${inviteInfo.nom}</span>`;
-      showNotification(`Bienvenue ${inviteInfo.nom} !`);
-    } else {
-      document.getElementById("status").innerHTML = `<span class="err">❌ Code invité non trouvé : ${codeFromUrl}</span>`;
-    }
+  if(codeFromUrl && invites[codeFromUrl]){
+    document.getElementById("invitationCard").style.display = "block";
+    document.getElementById("guestName").innerHTML = `<span style="color:#facc15">${invites[codeFromUrl]}</span>`;
+    document.getElementById("status").innerHTML = `<span class="ok">✅ Invitation chargée depuis le QR code !<br>Bienvenue ${invites[codeFromUrl]}</span>`;
+    showNotification(`Bienvenue ${invites[codeFromUrl]} !`);
   }
-  
-  // Rendre les fonctions globales
-  window.startScanner = startScanner;
-  window.stopScanner = stopScanner;
 });
 
 // Nettoyer à la fermeture
