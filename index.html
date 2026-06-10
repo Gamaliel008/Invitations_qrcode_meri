@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitation QR - JPC MERI</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<title>Invitation - JPC MERI</title>
 
 <style>
 *{
@@ -49,14 +48,14 @@ h2{
 
 input{
   width:100%;
-  padding:12px;
-  border-radius:10px;
+  padding:14px;
+  border-radius:12px;
   border:none;
-  margin:10px 0;
-  font-size:14px;
+  font-size:16px;
   background:rgba(255,255,255,0.1);
   color:white;
   text-align:center;
+  margin:10px 0;
 }
 
 input::placeholder{
@@ -102,6 +101,7 @@ input::placeholder{
   display:flex;
   flex-direction:column;
   gap:8px;
+  display:none;
 }
 
 .box{
@@ -130,15 +130,6 @@ button:hover{
   transform:scale(0.98);
 }
 
-button.secondary{
-  background:#3b82f6;
-  color:white;
-}
-
-button.secondary:hover{
-  background:#2563eb;
-}
-
 #status{
   margin-top:12px;
   font-size:14px;
@@ -147,12 +138,6 @@ button.secondary:hover{
 .error{ color:#f87171; }
 .success{ color:#86efac; }
 .info-status{ color:#facc15; }
-
-#qrBox{
-  margin-top:20px;
-  display:flex;
-  justify-content:center;
-}
 
 .loading{
   display:inline-block;
@@ -176,16 +161,6 @@ button.secondary:hover{
   color:#facc15;
 }
 
-.locked{
-  background:rgba(239,68,68,0.2);
-  border:1px solid #ef4444;
-}
-
-.unlocked{
-  background:rgba(34,197,94,0.2);
-  border:1px solid #86efac;
-}
-
 .pin-section{
   background:rgba(0,0,0,0.3);
   border-radius:16px;
@@ -202,9 +177,10 @@ button.secondary:hover{
 
 <div class="pin-section" id="pinSection">
   <h2>🔐 Accès sécurisé</h2>
+  <p style="font-size:13px; opacity:0.8; margin-bottom:15px;">Entrez votre matricule et le code PIN à 4 chiffres reçu</p>
   <input id="matricule" type="text" placeholder="Matricule (Ex: RC0001)" autocomplete="off">
   <input id="pinCode" class="pin-input" type="text" maxlength="4" placeholder="Code PIN à 4 chiffres" autocomplete="off">
-  <button onclick="verifierAcces()">🔓 Vérifier et accéder à l'invitation</button>
+  <button onclick="verifierAcces()">🔓 Voir mon invitation</button>
 </div>
 
 <div id="invitationContent" style="display:none;">
@@ -216,14 +192,11 @@ button.secondary:hover{
     <p class="cordial">Cordiale bienvenue ! 🎉</p>
   </div>
 
-  <div class="info">
+  <div class="info" id="infoBlock">
     <div class="box">📅 Dimanche 14 Juin 2026</div>
     <div class="box">📍 Restaurant LACAZZA</div>
     <div class="box">⏰ 15h00</div>
   </div>
-
-  <button onclick="genererMonQR()">🎟️ Générer mon QR code d'invitation</button>
-  <div id="qrBox"></div>
 </div>
 
 <div id="status"></div>
@@ -257,12 +230,11 @@ function verifierAcces() {
   statusDiv.innerHTML = `<span class="info-status"><span class="loading"></span> Vérification en cours...</span>`;
   
   setTimeout(() => {
-    // Récupérer les PINs stockés dans localStorage
     const storedPins = JSON.parse(localStorage.getItem('invitationPins') || '{}');
     const pinData = storedPins[code];
     
     if(!pinData){
-      statusDiv.innerHTML = "<span class='error'>❌ Matricule invalide ou aucun PIN généré pour ce code</span>";
+      statusDiv.innerHTML = "<span class='error'>❌ Matricule invalide ou aucun PIN généré</span>";
       return;
     }
     
@@ -272,7 +244,14 @@ function verifierAcces() {
     }
     
     if(pinData.utilise){
-      statusDiv.innerHTML = "<span class='error'>❌ Cette invitation a déjà été activée !</span>";
+      statusDiv.innerHTML = "<span class='error'>❌ Ce code PIN a déjà été utilisé !</span>";
+      return;
+    }
+    
+    // Vérifier si déjà dans la salle (présence enregistrée)
+    const presences = JSON.parse(localStorage.getItem('presences') || '{}');
+    if(presences[code]){
+      statusDiv.innerHTML = "<span class='error'>❌ Accès refusé ! Vous êtes déjà dans la salle.</span>";
       return;
     }
     
@@ -284,52 +263,21 @@ function verifierAcces() {
     currentNom = pinData.nom;
     isUnlocked = true;
     
-    // Afficher le contenu de l'invitation
+    // Afficher l'invitation
     document.getElementById("pinSection").style.display = "none";
     document.getElementById("invitationContent").style.display = "block";
     document.getElementById("messageContent").style.display = "block";
+    document.getElementById("infoBlock").style.display = "flex";
     document.getElementById("nomInvite").innerHTML = currentNom;
     
     statusDiv.innerHTML = `<span class="success">✅ Accès validé ! Bienvenue ${currentNom} !</span>`;
     
-    // Stocker pour la session
     sessionStorage.setItem('unlockedCode', currentCode);
     sessionStorage.setItem('unlockedNom', currentNom);
     
   }, 500);
 }
 
-function genererMonQR() {
-  const box = document.getElementById("qrBox");
-  const statusDiv = document.getElementById("status");
-  box.innerHTML = "";
-
-  if(!isUnlocked || !currentCode || !currentNom) {
-    statusDiv.innerHTML = "<span class='error'>❌ Veuillez d'abord valider votre accès avec le code PIN</span>";
-    return;
-  }
-
-  try {
-    const qrData = `scanner.html?code=${currentCode}`;
-    
-    box.innerHTML = "";
-    
-    new QRCode(box, {
-      text: qrData,
-      width: 200,
-      height: 200,
-      colorDark: "#000000",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.H
-    });
-    
-    statusDiv.innerHTML = `<span class="success">✅ QR code généré pour ${currentNom} (${currentCode})</span>`;
-  } catch(error) {
-    statusDiv.innerHTML = "<span class='error'>❌ Erreur lors de la génération du QR code</span>";
-  }
-}
-
-// Vérifier si déjà débloqué dans cette session
 window.addEventListener('load', () => {
   const unlockedCode = sessionStorage.getItem('unlockedCode');
   const unlockedNom = sessionStorage.getItem('unlockedNom');
@@ -341,11 +289,12 @@ window.addEventListener('load', () => {
     
     document.getElementById("pinSection").style.display = "none";
     document.getElementById("invitationContent").style.display = "block";
+    document.getElementById("messageContent").style.display = "block";
+    document.getElementById("infoBlock").style.display = "flex";
     document.getElementById("nomInvite").innerHTML = currentNom;
     document.getElementById("status").innerHTML = `<span class="success">✅ Session active - Bienvenue ${currentNom}</span>`;
   }
   
-  // Ajouter l'événement Entrée
   document.getElementById("pinCode").addEventListener("keypress", (e) => {
     if(e.key === "Enter") verifierAcces();
   });
