@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitation - JPC MERI</title>
+<title>Remises de Cadeaux 2026 - JPC MERI</title>
 
 <style>
 *{
@@ -36,8 +36,14 @@ body{
 
 h1{
   color:#facc15;
-  font-size:22px;
-  margin-bottom:10px;
+  font-size:24px;
+  margin-bottom:5px;
+}
+
+.subtitle{
+  font-size:13px;
+  opacity:0.8;
+  margin-bottom:15px;
 }
 
 h2{
@@ -159,6 +165,7 @@ button:hover{
   margin-top:15px;
   font-style:italic;
   color:#facc15;
+  text-align:center;
 }
 
 .pin-section{
@@ -167,29 +174,42 @@ button:hover{
   padding:15px;
   margin:15px 0;
 }
+
+.event-badge{
+  display:inline-block;
+  background:rgba(250,204,21,0.2);
+  padding:5px 15px;
+  border-radius:30px;
+  font-size:12px;
+  margin-bottom:10px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="card">
-<h1>🎟️ Système d'Invitation JPC MERI</h1>
+<h1>🎁 REMISES DE CADEAUX 2026 🎁</h1>
+<div class="subtitle">✨ Un moment de partage et de générosité ✨</div>
+<div class="event-badge">📅 Dimanche 14 Juin 2026 - 15h00</div>
 
 <div class="pin-section" id="pinSection">
   <h2>🔐 Accès sécurisé</h2>
-  <p style="font-size:13px; opacity:0.8; margin-bottom:15px;">Entrez votre matricule et le code PIN à 4 chiffres reçu</p>
-  <input id="matricule" type="text" placeholder="Matricule (Ex: RC0001)" autocomplete="off">
-  <input id="pinCode" class="pin-input" type="text" maxlength="4" placeholder="Code PIN à 4 chiffres" autocomplete="off">
+  <p style="font-size:13px; opacity:0.8; margin-bottom:15px;">Entrez votre matricule INVJPC et le code PIN à 4 chiffres reçu</p>
+  <input id="matricule" type="text" placeholder="Matricule (Ex: INVJPC1)" autocomplete="off">
+  <input id="pinCode" class="pin-input" type="text" maxlength="4" placeholder="Code PIN" autocomplete="off">
   <button onclick="verifierAcces()">🔓 Voir mon invitation</button>
 </div>
 
 <div id="invitationContent" style="display:none;">
   <div class="message" id="messageContent">
-    <p>Cher(e) révérend pasteur, papa, maman, frère, sœur, <strong class="points" id="nomInvite">___________</strong>,</p>
-    <p>La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé vous convie à prendre part à la fête d'échange des cadeaux et de communion fraternelle ce <strong>Dimanche 14 Juin 2026</strong>.</p>
+    <p>🎁 <strong>CHER(E) <span class="points" id="nomInvite">___________</span></strong> 🎁</p>
+    <p>La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé a le plaisir de vous convier à la grande <strong>REMISE DE CADEAUX 2026</strong>.</p>
+    <p>Un moment magique de partage, de surprises et de communion fraternelle.</p>
     <p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
     <p>⏰ <strong>Heure :</strong> 15h00</p>
-    <p class="cordial">Cordiale bienvenue ! 🎉</p>
+    <p>🎁 Au programme : Échange de cadeaux, Rafraîchissements, Surprises</p>
+    <p class="cordial">Votre présence est notre plus beau cadeau ! 🌟</p>
   </div>
 
   <div class="info" id="infoBlock">
@@ -203,9 +223,87 @@ button:hover{
 </div>
 
 <script>
-// Données des invités
+// LISTE FINALE DES 79 INVITÉS (INVJPC1 à INVJPC79)
 const invites = {
-"RC0001":"Fr Emmanuel Bondo","RC0002":"Fr Tonny Bwanga","RC0003":"Fr Abel Dianda","RC0004":"Fr Sylas Mutetelenu","RC0005":"Fr Louis Tshimanga","RC0006":"Fr Aimerance Kazal","RC0007":"Sr Jolaine Mwika","RC0008":"Sr Julia yav","RC0009":"Fr Christian Okota","RC0010":"Fr Maurice Kasongo","RC0011":"Sr Allegresse Simbove","RC0012":"Sr Craintha Simbove","RC0013":"Fr Martin Fine","RC0014":"Sr Jireh Topele","RC0015":"Fr Blaise Lwashi","RC0016":"Fr Alex Nawej","RC0017":"Maman Lydia Mukonda","RC0018":"Fr Lumière Mbuyi","RC0019":"Fr Roméo Lufungula","RC0020":"Fr Marc Kyabo","RC0021":"Fr Héritier Sangwa","RC0022":"Fr Jonathan Kabunda","RC0023":"Fr Ariel Kiyonge","RC0024":"Fr Donatien Kabala","RC0025":"Fr Sylvain Kumena","RC0026":"Sr Gloria Mbindi","RC0027":"Fr Misaël Meshack","RC0028":"Fr Esaïe Kabunda","RC0029":"Fr Tresor Ntambwe","RC0030":"Fr Gamaliel Kalambo","RC0031":"Sr Sephora Yumba","RC0032":"Sr Arisia Yumba","RC0033":"Sr Julia Mbala","RC0034":"Sr Elisa Nzweba","RC0035":"Sr Rosette Lwaisha","RC0036":"Fr Gamaliel Muland","RC0037":"Sr Myriam Kalenga","RC0038":"Fr Jérémie Yumba","RC0039":"Fr Grace Alphonse","RC0040":"Sr Anne Kabwe","RC0041":"Fr Gad Mukalay","RC0042":"Sr L'or Kabwit","RC0043":"Sr Viviane Nduwa","RC0044":"Sr Rebecca Itwamba","RC0045":"Sr Alice Furah","RC0046":"Sr Acacia Percide Margueritte","RC0047":"Sr Marie Kasongo","RC0048":"Sr Gloire Watshika","RC0049":"Fr Guy Kalala","RC0050":"Fr David Sangwa","RC0051":"Fr Josué Musans","RC0052":"Sr Abigaël Mulunda","RC0053":"Fr Josué Kabange","RC0054":"Sr Clémence Mujinga","RC0055":"Sr Esther Ngalula","RC0056":"Fr Christian Kambendja","RC0057":"Fr David Iledephose","RC0058":"Fr Claude Botamali","RC0059":"Sr Christine","RC0060":"Sr Adassa","RC0061":"Fr Victoire Kyungu","RC0062":"Sr Sarah Mayeta","RC0063":"Fr Samuel Ngoy","RC0064":"Fr Crinovic Simbove","RC0065":"Fr Yann Kabuya","RC0066":"Sr Melissa","RC0067":"Fr Ephraïm"
+"INVJPC1":"Fr Emmanuel Bondo",
+"INVJPC2":"Fr Tonny Bwanga",
+"INVJPC3":"Fr Abel Dianda",
+"INVJPC4":"Fr Sylas Mutetelenu",
+"INVJPC5":"Fr Louis Tshimanga",
+"INVJPC6":"Fr Aimerance Kazal",
+"INVJPC7":"Sr Jolaine Mwika",
+"INVJPC8":"Sr Julia yav",
+"INVJPC9":"Fr Christian Okota",
+"INVJPC10":"Fr Maurice Kasongo",
+"INVJPC11":"Sr Allegresse Simbove",
+"INVJPC12":"Sr Craintha Simbove",
+"INVJPC13":"Fr Martin Fine",
+"INVJPC14":"Sr Jireh Topele",
+"INVJPC15":"Fr Blaise Lwashi",
+"INVJPC16":"Fr Alex Nawej",
+"INVJPC17":"Maman Lydia Mukonda",
+"INVJPC18":"Fr Lumière Mbuyi",
+"INVJPC19":"Fr Roméo Lufungula",
+"INVJPC20":"Fr Marc Kyabo",
+"INVJPC21":"Fr Héritier Sangwa",
+"INVJPC22":"Fr Jonathan Kabunda",
+"INVJPC23":"Fr Ariel Kiyonge",
+"INVJPC24":"Fr Donatien Kabala",
+"INVJPC25":"Fr Sylvain Kumena",
+"INVJPC26":"Sr Gloria Mbindi",
+"INVJPC27":"Fr Misaël Meshack",
+"INVJPC28":"Fr Esaïe Kabunda",
+"INVJPC29":"Fr Tresor Ntambwe",
+"INVJPC30":"Fr Gamaliel Kalambo",
+"INVJPC31":"Sr Sephora Yumba",
+"INVJPC32":"Sr Arisia Yumba",
+"INVJPC33":"Sr Julia Mbala",
+"INVJPC34":"Sr Elisa Nzweba",
+"INVJPC35":"Sr Rosette Lwaisha",
+"INVJPC36":"Fr Gamaliel Muland",
+"INVJPC37":"Sr Myriam Kalenga",
+"INVJPC38":"Fr Jérémie Yumba",
+"INVJPC39":"Fr Grace Alphonse",
+"INVJPC40":"Sr Anne Kabwe",
+"INVJPC41":"Fr Gad Mukalay",
+"INVJPC42":"Sr L'or Kabwit",
+"INVJPC43":"Sr Viviane Nduwa",
+"INVJPC44":"Sr Rebecca Itwamba",
+"INVJPC45":"Sr Alice Furah",
+"INVJPC46":"Sr Acacia Percide Margueritte",
+"INVJPC47":"Sr Marie Kasongo",
+"INVJPC48":"Sr Gloire Watshika",
+"INVJPC49":"Fr Guy Kalala",
+"INVJPC50":"Fr David Sangwa",
+"INVJPC51":"Fr Josué Musans",
+"INVJPC52":"Sr Abigaël Mulunda",
+"INVJPC53":"Fr Josué Kabange",
+"INVJPC54":"Sr Clémence Mujinga",
+"INVJPC55":"Sr Esther Ngalula",
+"INVJPC56":"Fr Christian Kambendja",
+"INVJPC57":"Fr David Iledephose",
+"INVJPC58":"Fr Claude Botamali",
+"INVJPC59":"Sr Christine",
+"INVJPC60":"Sr Adassa",
+"INVJPC61":"Fr Victoire Kyungu",
+"INVJPC62":"Sr Sarah Mayeta",
+"INVJPC63":"Fr Samuel Ngoy",
+"INVJPC64":"Fr Crinovic Simbove",
+"INVJPC65":"Fr Yann Kabuya",
+"INVJPC66":"Sr Melissa",
+"INVJPC67":"Fr Ephraïm",
+"INVJPC68":"Fr Rubin",
+"INVJPC69":"Fr John",
+"INVJPC70":"Fr Manassé",
+"INVJPC71":"Fr Espoir",
+"INVJPC72":"Fr Matthew",
+"INVJPC73":"Fr Joseph",
+"INVJPC74":"Fr Parfait",
+"INVJPC75":"Sr Augustine",
+"INVJPC76":"Sr Syntiche",
+"INVJPC77":"Sr Jenovic",
+"INVJPC78":"Fr Bonheur Wa Tshimbu",
+"INVJPC79":"Sr Mariam"
 };
 
 let currentCode = "";
@@ -248,14 +346,12 @@ function verifierAcces() {
       return;
     }
     
-    // Vérifier si déjà dans la salle (présence enregistrée)
     const presences = JSON.parse(localStorage.getItem('presences') || '{}');
     if(presences[code]){
       statusDiv.innerHTML = "<span class='error'>❌ Accès refusé ! Vous êtes déjà dans la salle.</span>";
       return;
     }
     
-    // PIN valide - activer l'invitation
     pinData.utilise = true;
     localStorage.setItem('invitationPins', JSON.stringify(storedPins));
     
@@ -263,7 +359,6 @@ function verifierAcces() {
     currentNom = pinData.nom;
     isUnlocked = true;
     
-    // Afficher l'invitation
     document.getElementById("pinSection").style.display = "none";
     document.getElementById("invitationContent").style.display = "block";
     document.getElementById("messageContent").style.display = "block";
