@@ -278,6 +278,7 @@ h3{
     <div id="pinNom" style="font-weight:bold; margin:5px 0"></div>
     <div class="pin-code" id="pinCode">----</div>
     <div>⚠️ Usage unique - L'invité devra entrer ce code sur sa page</div>
+    <button onclick="copierPIN()" style="margin-top:10px; background:#22c55e; color:white;">📋 Copier le PIN</button>
   </div>
   <div id="status"></div>
 </div>
@@ -386,6 +387,7 @@ const invites = {
 "INVJPC79":"Sr Mariam"
 };
 
+// Initialisation des stockages
 let pins = JSON.parse(localStorage.getItem('invitationPins') || '{}');
 let presences = JSON.parse(localStorage.getItem('presences') || '{}');
 
@@ -422,8 +424,10 @@ function genererPIN() {
     return;
   }
   
+  // Générer un PIN aléatoire à 4 chiffres
   const pin = Math.floor(1000 + Math.random() * 9000).toString();
   
+  // Sauvegarder le PIN
   pins[code] = {
     pin: pin,
     nom: nom,
@@ -432,14 +436,29 @@ function genererPIN() {
   };
   localStorage.setItem('invitationPins', JSON.stringify(pins));
   
+  // Afficher le PIN
   document.getElementById("pinNom").innerHTML = `${nom} (${code})`;
   document.getElementById("pinCode").innerHTML = pin;
   pinCard.style.display = "block";
-  statusDiv.innerHTML = `<span class='success'>✅ PIN généré ! À communiquer à ${nom}</span>`;
+  statusDiv.innerHTML = `<span class='success'>✅ PIN généré avec succès !</span>`;
   
+  // Actualiser l'affichage
+  afficherHistorique();
+  
+  // Faire disparaître la carte après 15 secondes
   setTimeout(() => {
     pinCard.style.display = "none";
-  }, 10000);
+  }, 15000);
+}
+
+function copierPIN() {
+  const pinCode = document.getElementById("pinCode").innerText;
+  navigator.clipboard.writeText(pinCode);
+  const statusDiv = document.getElementById("status");
+  statusDiv.innerHTML = `<span class='success'>✅ PIN ${pinCode} copié dans le presse-papier !</span>`;
+  setTimeout(() => {
+    if(statusDiv.innerHTML.includes("copié")) statusDiv.innerHTML = "";
+  }, 2000);
 }
 
 function validerEntree() {
@@ -473,6 +492,7 @@ function validerEntree() {
   document.getElementById("scanCode").value = "";
   mettreAJourStatistiques();
   
+  // Jouer un son de confirmation
   try {
     const audio = new Audio('data:audio/wav;base64,U3RlYWx0aCBhbmQgdGVzdCBzb3VuZA==');
     audio.play().catch(() => {});
@@ -489,6 +509,11 @@ function afficherHistorique() {
     return nom.toLowerCase().includes(searchTerm) || code.toLowerCase().includes(searchTerm);
   });
   
+  if(filtered.length === 0){
+    container.innerHTML = "<div style='text-align:center;opacity:0.7;padding:20px;'>Aucun invité trouvé</div>";
+    return;
+  }
+  
   container.innerHTML = filtered.map(code => {
     const nom = invites[code];
     const estPresent = presences[code];
@@ -499,7 +524,7 @@ function afficherHistorique() {
         <div>
           <div class="history-nom">${nom}</div>
           <div class="history-code">${code}</div>
-          ${pinInfo ? `<div class="history-time">PIN: ${pinInfo.pin}</div>` : ''}
+          ${pinInfo ? `<div class="history-time">PIN: ${pinInfo.pin} - ${pinInfo.utilise ? '✅ Utilisé' : '⏳ Non utilisé'}</div>` : '<div class="history-time">⚠️ Aucun PIN généré</div>'}
         </div>
         <div>
           ${estPresent ? 
@@ -557,6 +582,8 @@ window.addEventListener('load', () => {
   document.getElementById("scanCode").addEventListener("keypress", (e) => {
     if(e.key === "Enter") validerEntree();
   });
+  
+  console.log("Admin prêt - Nombre d'invités:", Object.keys(invites).length);
 });
 </script>
 </body>
