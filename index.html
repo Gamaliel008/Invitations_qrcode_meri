@@ -203,13 +203,11 @@ button:hover{
 
 <div id="invitationContent" style="display:none;">
   <div class="message" id="messageContent">
-    <p>🎁 <strong>CHER(E) <span class="points" id="nomInvite">___________</span></strong> 🎁</p>
-    <p>La Jeunesse Pour Christ de l'Église MERI / Paroisse Grain de Senevé a le plaisir de vous convier à la grande <strong>REMISE DE CADEAUX 2026</strong>.</p>
-    <p>Un moment magique de partage, de surprises et de communion fraternelle.</p>
+    <p>Cher(e) révérend pasteur, papa, maman, frère, sœur, <strong class="points" id="nomInvite">___________</strong>,</p>
+    <p>La Jeunesse Pour Christ de l'Église MERI vous convie à prendre part à la fête d'échange des cadeaux et de communion fraternelle ce <strong>Dimanche 14 Juin 2026</strong>.</p>
     <p>📍 <strong>Lieu :</strong> Restaurant LACAZZA</p>
     <p>⏰ <strong>Heure :</strong> 15h00</p>
-    <p>🎁 Au programme : Échange de cadeaux, Rafraîchissements, Surprises</p>
-    <p class="cordial">Votre présence est notre plus beau cadeau ! 🌟</p>
+    <p class="cordial">Cordiale bienvenue ! 🎉</p>
   </div>
 
   <div class="info" id="infoBlock">
@@ -327,50 +325,51 @@ function verifierAcces() {
   
   statusDiv.innerHTML = `<span class="info-status"><span class="loading"></span> Vérification en cours...</span>`;
   
-  setTimeout(() => {
-    const storedPins = JSON.parse(localStorage.getItem('invitationPins') || '{}');
-    const pinData = storedPins[code];
-    
-    if(!pinData){
-      statusDiv.innerHTML = "<span class='error'>❌ Matricule invalide ou aucun PIN généré</span>";
-      return;
-    }
-    
-    if(pinData.pin !== pin){
-      statusDiv.innerHTML = "<span class='error'>❌ Code PIN incorrect !</span>";
-      return;
-    }
-    
-    if(pinData.utilise){
-      statusDiv.innerHTML = "<span class='error'>❌ Ce code PIN a déjà été utilisé !</span>";
-      return;
-    }
-    
-    const presences = JSON.parse(localStorage.getItem('presences') || '{}');
-    if(presences[code]){
-      statusDiv.innerHTML = "<span class='error'>❌ Accès refusé ! Vous êtes déjà dans la salle.</span>";
-      return;
-    }
-    
-    pinData.utilise = true;
-    localStorage.setItem('invitationPins', JSON.stringify(storedPins));
-    
-    currentCode = code;
-    currentNom = pinData.nom;
-    isUnlocked = true;
-    
-    document.getElementById("pinSection").style.display = "none";
-    document.getElementById("invitationContent").style.display = "block";
-    document.getElementById("messageContent").style.display = "block";
-    document.getElementById("infoBlock").style.display = "flex";
-    document.getElementById("nomInvite").innerHTML = currentNom;
-    
-    statusDiv.innerHTML = `<span class="success">✅ Accès validé ! Bienvenue ${currentNom} !</span>`;
-    
-    sessionStorage.setItem('unlockedCode', currentCode);
-    sessionStorage.setItem('unlockedNom', currentNom);
-    
-  }, 500);
+  // Récupération directe depuis localStorage
+  const storedPins = JSON.parse(localStorage.getItem('invitationPins') || '{}');
+  const pinData = storedPins[code];
+  
+  if(!pinData){
+    statusDiv.innerHTML = "<span class='error'>❌ Aucun PIN généré pour ce matricule. Contactez l'administrateur.</span>";
+    return;
+  }
+  
+  if(pinData.pin !== pin){
+    statusDiv.innerHTML = "<span class='error'>❌ Code PIN incorrect !</span>";
+    return;
+  }
+  
+  if(pinData.utilise === true){
+    statusDiv.innerHTML = "<span class='error'>❌ Ce code PIN a déjà été utilisé !</span>";
+    return;
+  }
+  
+  // Vérifier présence dans la salle
+  const presences = JSON.parse(localStorage.getItem('presences') || '{}');
+  if(presences[code]){
+    statusDiv.innerHTML = "<span class='error'>❌ Accès refusé ! Vous êtes déjà dans la salle.</span>";
+    return;
+  }
+  
+  // Marquer le PIN comme utilisé
+  pinData.utilise = true;
+  localStorage.setItem('invitationPins', JSON.stringify(storedPins));
+  
+  currentCode = code;
+  currentNom = pinData.nom;
+  isUnlocked = true;
+  
+  // Afficher l'invitation
+  document.getElementById("pinSection").style.display = "none";
+  document.getElementById("invitationContent").style.display = "block";
+  document.getElementById("messageContent").style.display = "block";
+  document.getElementById("infoBlock").style.display = "flex";
+  document.getElementById("nomInvite").innerHTML = currentNom;
+  
+  statusDiv.innerHTML = `<span class="success">✅ Accès validé ! Bienvenue ${currentNom} !</span>`;
+  
+  sessionStorage.setItem('unlockedCode', currentCode);
+  sessionStorage.setItem('unlockedNom', currentNom);
 }
 
 window.addEventListener('load', () => {
@@ -393,6 +392,9 @@ window.addEventListener('load', () => {
   document.getElementById("pinCode").addEventListener("keypress", (e) => {
     if(e.key === "Enter") verifierAcces();
   });
+  
+  // Afficher un message si aucun PIN n'existe
+  console.log("Système prêt - Matricules disponibles:", Object.keys(invites).length);
 });
 </script>
 
